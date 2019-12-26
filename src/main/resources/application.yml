@@ -14,7 +14,7 @@ spring:
 #    driverClassName: org.postgresql.Driver
 
 datasource:
-  url: jdbc:postgresql://localhost:5432/mydb
+  url: jdbc:postgresql://localhost:5432/postgres
   username: postgres
   password: toor
   driver-class-name: org.postgresql.Driver
