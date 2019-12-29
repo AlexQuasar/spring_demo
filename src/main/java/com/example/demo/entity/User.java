@@ -23,7 +23,7 @@ public class User {
     @Column(name = "userId", unique = true)
     private String userId;
 
-    @Column(name = "utl")
+    @Column(name = "url")
     private String url;
 
     @Column(name = "average")
