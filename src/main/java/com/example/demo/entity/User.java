@@ -1,33 +1,31 @@
 package com.example.demo.entity;
 
-import org.hibernate.annotations.GenericGenerator;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(schema = "public", name = "user")
+@Table(schema = "public", name = "user_visit_time")
+@Getter
+@Setter
+@ToString
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name")
-    private String name;
+    private LocalDate day;
 
-    public int getId() {
-        return id;
-    }
+    @Column(name = "userId", unique = true)
+    private String userId;
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    @Column(name = "utl")
+    private String url;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    @Column(name = "average")
+    private Long average = 0L;
 }
