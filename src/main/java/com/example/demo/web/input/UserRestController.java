@@ -24,6 +24,7 @@ public class UserRestController {
 
     @PostMapping("/addUser")
     public String addUser(@RequestBody User user) {
+        // TODO: проблема с id, так как он сам инкрементируется. не могу разобраться
         userParserService.addUser(user);
         return "user saved";
     }

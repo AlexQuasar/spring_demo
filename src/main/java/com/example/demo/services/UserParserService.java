@@ -29,9 +29,6 @@ public class UserParserService {
     }
 
     public List<User> getSortedUsers() {
-        if (users.isEmpty()) {
-            return new ArrayList<>();
-        }
         sortUsers();
         return userRepository.findAll();
     }
@@ -39,6 +36,7 @@ public class UserParserService {
     private void sortUsers() {
         List<User> userList = userService.sortUsers(users);
         userRepository.saveAll(userList);
+        users.clear();
     }
 
     public User findByUserId(String userId) {

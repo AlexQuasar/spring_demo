@@ -1,4 +1,4 @@
-package com.example.demo.services.support;
+package com.example.demo.entity.support;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
