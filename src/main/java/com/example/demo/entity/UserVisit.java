@@ -13,6 +13,8 @@ import java.time.LocalDate;
 
 // TODO: 1/7/20 не совсем так, визит пользователя это скорее то где и сколько он провел времени.
 //  Для того чтобы выдавать отчет о среднем времени на сайте за день следует завести другой класс UserDailyAveragePresenceReport, например.
+// тогда, мне кажется, еще один класс entity будет лишним и хранить среднее число в принципе нет необходимости, а если оно понадобится,
+// то считать его динамически из этой таблицы
 
 public class UserVisit {
 
@@ -20,6 +22,7 @@ public class UserVisit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "day")
     private LocalDate day;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -29,6 +32,6 @@ public class UserVisit {
     @Column(name = "url")
     private String url;
 
-    @Column(name = "average")
-    private Long average = 0L;
+    @Column(name = "timeSpent")
+    private Integer timeSpent = 0;
 }

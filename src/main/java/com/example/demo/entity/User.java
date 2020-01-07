@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,4 +23,8 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
     private Set<UserVisit> userVisits;
 
+    @JsonIgnore
+    public Set<UserVisit> getUserVisits() {
+        return userVisits;
+    }
 }

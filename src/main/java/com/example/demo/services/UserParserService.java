@@ -1,12 +1,16 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.XMLInteraction.XMLParser;
+import com.example.demo.dto.structureXML.input.Input;
 import com.example.demo.dto.support.UserIndicators;
 import com.example.demo.dto.support.UserSite;
+import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
 import com.example.demo.repository.UserVisitRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,10 +46,9 @@ public class UserParserService {
             UserSite userSite = new UserSite(userVisit.getUser().getId(), userVisit.getDay(), userVisit.getUser().getName(), userVisit.getUrl());
             UserIndicators userIndicators = userSiteMap.get(userSite);
             if (userIndicators != null) {
-                userIndicators.timeSpent += userVisit.getAverage();
-                userIndicators.visitQuantity++;
+                userIndicators.timeSpent += userVisit.getTimeSpent();
             } else {
-                userSiteMap.put(userSite, new UserIndicators(userVisit.getAverage()));
+                userSiteMap.put(userSite, new UserIndicators(userVisit.getId(), userVisit.getTimeSpent()));
             }
         }
 
@@ -54,21 +57,43 @@ public class UserParserService {
             UserSite userSite = entry.getKey();
             UserIndicators userIndicators = entry.getValue();
             UserVisit userVisit = new UserVisit();
+            userVisit.setId(userIndicators.user_visit_id);
             userVisit.setDay(userSite.day);
-            userVisit.setUser(userRepository.findById(userSite.id));
+            userVisit.setUser(userRepository.findById(userSite.user_id));
             userVisit.setUrl(userSite.url);
-            userVisit.setAverage(userIndicators.timeSpent / userIndicators.visitQuantity);
+            userVisit.setTimeSpent(userIndicators.timeSpent);
             userVisitList.add(userVisit);
         }
 
         return userVisitList;
     }
 
-    public UserVisit findByUserId(String userId) {
-        return userVisitRepository.findByUserId(userId);
+    public void addLogs(Input input) {
+        XMLParser xmlParser = new XMLParser(userRepository);
+        xmlParser.parseXML(input);
+
+        Map<LocalDate, Map<UserSite, UserIndicators>> dateUserMap = xmlParser.getVisitsMap();
+        collectUserVisits(dateUserMap);
     }
 
-    public List<UserVisit> findAllByUrl(String url) {
-        return userVisitRepository.findAllByUrl(url);
+    private void collectUserVisits(Map<LocalDate, Map<UserSite, UserIndicators>> dateUserMap) {
+        for (Map.Entry<LocalDate, Map<UserSite, UserIndicators>> entryDate : dateUserMap.entrySet()) {
+            for (Map.Entry<UserSite, UserIndicators> entry : entryDate.getValue().entrySet()) {
+                UserSite userSite = entry.getKey();
+                UserIndicators userIndicators = entry.getValue();
+                User user = userRepository.findById(userSite.user_id);
+
+                UserVisit userVisit = new UserVisit();
+                userVisit.setDay(entryDate.getKey());
+                userVisit.setUser(user);
+                userVisit.setUrl(userSite.url);
+                userVisit.setTimeSpent(userIndicators.timeSpent);
+
+                // при добавлении сыпется 500 ошибка "could not execute statement; SQL [n/a]". пока не разобрался в чем проблема
+                // вот полная ошибка из Postman "could not execute statement; SQL [n/a]; nested exception is org.hibernate.exception.SQLGrammarException: could not execute statement"
+                // не могу понять где грамматическая ошибка и она ли это вообще
+                addVisit(userVisit);
+            }
+    }
     }
 }
