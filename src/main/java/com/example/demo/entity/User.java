@@ -2,30 +2,24 @@ package com.example.demo.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
-@Table(schema = "public", name = "user_visit_time")
+@Table(schema = "public", name = "user")
 @Getter
 @Setter
-@ToString
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private LocalDate day;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "userId", unique = true)
-    private String userId;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<UserVisit> userVisits;
 
-    @Column(name = "url")
-    private String url;
-
-    @Column(name = "average")
-    private Long average = 0L;
 }

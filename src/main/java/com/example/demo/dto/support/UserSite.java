@@ -1,4 +1,4 @@
-package com.example.demo.entity.support;
+package com.example.demo.dto.support;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 public class UserSite {
 
+    public int id;
     public LocalDate day;
     public String userId;
     public String url;

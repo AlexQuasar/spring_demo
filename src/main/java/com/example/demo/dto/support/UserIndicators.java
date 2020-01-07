@@ -1,4 +1,4 @@
-package com.example.demo.entity.support;
+package com.example.demo.dto.support;
 
 public class UserIndicators {
 
