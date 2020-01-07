@@ -10,6 +10,10 @@ import java.time.LocalDate;
 @Table(schema = "public", name = "user_visit")
 @Getter
 @Setter
+
+// TODO: 1/7/20 не совсем так, визит пользователя это скорее то где и сколько он провел времени.
+//  Для того чтобы выдавать отчет о среднем времени на сайте за день следует завести другой класс UserDailyAveragePresenceReport, например.
+
 public class UserVisit {
 
     @Id
