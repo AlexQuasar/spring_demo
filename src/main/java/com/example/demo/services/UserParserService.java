@@ -96,4 +96,10 @@ public class UserParserService {
             }
     }
     }
+
+    public void addVisits(Input input) {
+        LogParser logParser = new LogParser(input); // TODO: 1/7/20 implement LogParser
+        List<UserVisit> visits = logParser.parse();
+        userVisitRepository.saveAll(visits);
+    }
 }

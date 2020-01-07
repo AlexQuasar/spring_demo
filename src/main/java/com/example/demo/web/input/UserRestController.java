@@ -23,6 +23,12 @@ public class UserRestController {
         return "all visits saved";
     }
 
+    @PostMapping("/addInput")
+    public String addInput(@RequestBody Input input) {
+        userParserService.addVisits(input);
+        return "Inputs saved";
+    }
+
     @PostMapping("/addVisit")
     public String addVisit(@RequestBody UserVisit userVisit) {
         userParserService.addVisit(userVisit);
