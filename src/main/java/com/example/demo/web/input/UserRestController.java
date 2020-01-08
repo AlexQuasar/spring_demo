@@ -36,6 +36,7 @@ public class UserRestController {
 
     @PostMapping("/addLogs")
     // TODO: 1/8/20 пока лучше обойтись без xml, начнем с Json объекта с аналогичными полями
+    // у меня уже xml готов в postman и я его уже протестил
     public String addLogs(@RequestBody Input input) {
         userParserService.addLogs(input);
         return "logs added";

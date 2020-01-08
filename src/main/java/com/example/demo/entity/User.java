@@ -25,6 +25,8 @@ public class User {
 
     @JsonIgnore
     // TODO: 1/8/20 вместо этого уже есть геттер
+    // тут я поставил игнор, чтобы он JSON не зацикливал. у меня есть один запрос в котором возвращаются сгруппированные UserVisit
+    // а у нас же тут связь OneToMany и ManyToOne
     public Set<UserVisit> getUserVisits() {
         return userVisits;
     }
