@@ -1,22 +1,19 @@
 package com.example.demo.entity;
 
+import com.vladmihalcea.hibernate.type.interval.PostgreSQLIntervalType;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.time.Duration;
 import java.time.LocalDate;
 
 @Entity
 @Table(schema = "public", name = "user_visit")
+@TypeDef(typeClass = PostgreSQLIntervalType.class, defaultForType = Duration.class)
 @Getter
 @Setter
-
-// TODO: 1/7/20 не совсем так, визит пользователя это скорее то где и сколько он провел времени.
-//  Для того чтобы выдавать отчет о среднем времени на сайте за день следует завести другой класс UserDailyAveragePresenceReport, например.
-// тогда, мне кажется, еще один класс entity будет лишним и хранить среднее число в принципе нет необходимости, а если оно понадобится,
-// то считать его динамически из этой таблицы
-// TODO: 1/7/20 верно, хранить значение среднего пребывания в базе не обязательно, но я и не говорил что другой класс должен быть Entity.    
-
 public class UserVisit {
 
     @Id
@@ -33,7 +30,9 @@ public class UserVisit {
     @Column(name = "url")
     private String url;
 
-    // TODO: 1/7/20 попробуй записать Duration. Не уверен что получиться это сразу сделать, но попробуй.
-    @Column(name = "timeSpent")
+    @Column(name = "time_spent")
     private Integer timeSpent = 0;
+
+    @Column(name = "time_interval")
+    private Duration timeInterval;
 }

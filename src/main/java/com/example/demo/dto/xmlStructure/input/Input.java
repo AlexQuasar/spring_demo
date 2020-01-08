@@ -1,4 +1,4 @@
-package com.example.demo.dto.structureXML.input;
+package com.example.demo.dto.xmlStructure.input;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;

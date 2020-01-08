@@ -1,4 +1,4 @@
-package com.example.demo.dto.support;
+package com.example.demo.dto.userInteraction;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

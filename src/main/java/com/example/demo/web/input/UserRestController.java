@@ -1,6 +1,6 @@
 package com.example.demo.web.input;
 
-import com.example.demo.dto.structureXML.input.Input;
+import com.example.demo.dto.xmlStructure.input.Input;
 import com.example.demo.entity.UserVisit;
 import com.example.demo.services.UserParserService;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +21,6 @@ public class UserRestController {
     public String addVisits(@RequestBody List<UserVisit> userVisits) {
         userParserService.addVisits(userVisits);
         return "all visits saved";
-    }
-
-    @PostMapping("/addInput")
-    public String addInput(@RequestBody Input input) {
-        userParserService.addVisits(input);
-        return "Inputs saved";
     }
 
     @PostMapping("/addVisit")

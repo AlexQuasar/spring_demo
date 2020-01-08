@@ -1,9 +1,9 @@
-package com.example.demo.dto.XMLInteraction;
+package com.example.demo.dto.xmlInteraction;
 
-import com.example.demo.dto.structureXML.input.Input;
-import com.example.demo.dto.structureXML.input.Log;
-import com.example.demo.dto.support.UserIndicators;
-import com.example.demo.dto.support.UserSite;
+import com.example.demo.dto.xmlStructure.input.Input;
+import com.example.demo.dto.xmlStructure.input.Log;
+import com.example.demo.dto.userInteraction.UserIndicators;
+import com.example.demo.dto.userInteraction.UserSite;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import lombok.Getter;
@@ -38,9 +38,9 @@ public class XMLParser {
         while (timeSpentOnDay > 0) {
             timeSpentOnDay = timeSpent - secondsToEndDay;
             if (timeSpentOnDay <= 0) {
-                addUserInMap(startDateTime.toLocalDate(), log.getUser_id(), log.getUrl(), timeSpent);
+                addUserInMap(startDateTime, log.getUser_id(), log.getUrl(), timeSpent);
             } else {
-                addUserInMap(startDateTime.toLocalDate(), log.getUser_id(), log.getUrl(), secondsToEndDay);
+                addUserInMap(startDateTime, log.getUser_id(), log.getUrl(), secondsToEndDay);
                 timeSpent -= secondsToEndDay;
 
                 startDateTime = startDateTime.plusDays(1L).withHour(0).withMinute(0).withSecond(0);
@@ -50,7 +50,7 @@ public class XMLParser {
         }
     }
 
-    private void addUserInMap(LocalDate date, int user_id, String url, long timeSpent) {
+    private void addUserInMap(LocalDateTime date, int user_id, String url, long timeSpent) {
         User user = userRepository.findById(user_id);
         if (user == null) {
             user = new User();
@@ -59,21 +59,23 @@ public class XMLParser {
             userRepository.save(user);
         }
 
-        UserSite userSite = new UserSite(user.getId(), date, user.getName(), url);
+        LocalDate day = date.toLocalDate();
+        UserSite userSite = new UserSite(user.getId(), day, user.getName(), url);
 
         Integer timeSpentInt = (int) timeSpent;
-        Map<UserSite, UserIndicators> userFromMap = visitsMap.get(date);
+        Duration timeInterval = Duration.between(date, date.plusSeconds(timeSpent));
+        Map<UserSite, UserIndicators> userFromMap = visitsMap.get(day);
         if (userFromMap != null) {
             UserIndicators userIndicators = userFromMap.get(userSite);
             if (userIndicators != null) {
                 userIndicators.timeSpent += timeSpentInt;
             } else {
-                userFromMap.put(userSite, new UserIndicators(timeSpentInt));
+                userFromMap.put(userSite, new UserIndicators(timeSpentInt, timeInterval));
             }
         } else {
             Map<UserSite, UserIndicators> newSiteIndicators = new HashMap<>();
-            newSiteIndicators.put(userSite, new UserIndicators(timeSpentInt));
-            visitsMap.put(date, newSiteIndicators);
+            newSiteIndicators.put(userSite, new UserIndicators(timeSpentInt, timeInterval));
+            visitsMap.put(day, newSiteIndicators);
         }
     }
 }
