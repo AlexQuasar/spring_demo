@@ -35,6 +35,7 @@ public class UserParserService {
     }
 
     public void addLogs(Input input) {
+        // TODO: 1/8/20 репозиторий передавать не нужно, просто нужно смаппить один дто в аналогичный ентити, работа с базой вся здесь.
         LogParser logParser = new LogParser(userRepository, input);
         List<UserVisit> visits = logParser.parse();
         userVisitRepository.saveAll(visits);

@@ -24,6 +24,7 @@ public class User {
     private Set<UserVisit> userVisits;
 
     @JsonIgnore
+    // TODO: 1/8/20 вместо этого уже есть геттер
     public Set<UserVisit> getUserVisits() {
         return userVisits;
     }
