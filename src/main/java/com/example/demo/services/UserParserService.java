@@ -41,6 +41,7 @@ public class UserParserService {
         //  для этого репозиторий не нужен,
         // я его там использую потому что в одном логе может быть два посещения: на текущий день и на следующий
         // TODO: 1/9/20 и зачем нужен репозиторий, чтобы разбить 1 Log на n UserVisits ?
+        // в предыдущем комменте не правильно выразился. вообще мне там этот репозиторий нужен для того, что если такого User'а из Log нет в таблице, то сразу его добавить
         LogParser logParser = new LogParser(userRepository, input);
         List<UserVisit> visits = logParser.parse();
         userVisitRepository.saveAll(visits);

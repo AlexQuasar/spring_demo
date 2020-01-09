@@ -34,13 +34,21 @@ public class XMLParser {
         LocalDateTime endOfDay = LocalDateTime.of(startDateTime.toLocalDate(), LocalTime.MAX);
         long secondsToEndDay = Duration.between(startDateTime, endOfDay).getSeconds();
 
+        User user = userRepository.findById(log.getUser_id());
+        if (user == null) {
+            user = new User();
+            String userName = "Unknown" + log.getUser_id();
+            user.setName(userName);
+            userRepository.save(user);
+        }
+
         long timeSpentOnDay = timeSpent;
         while (timeSpentOnDay > 0) {
             timeSpentOnDay = timeSpent - secondsToEndDay;
             if (timeSpentOnDay <= 0) {
-                addUserInMap(startDateTime, log.getUser_id(), log.getUrl(), timeSpent);
+                addUserInMap(user, startDateTime, log.getUrl(), timeSpent);
             } else {
-                addUserInMap(startDateTime, log.getUser_id(), log.getUrl(), secondsToEndDay);
+                addUserInMap(user, startDateTime, log.getUrl(), secondsToEndDay);
                 timeSpent -= secondsToEndDay;
 
                 startDateTime = startDateTime.plusDays(1L).withHour(0).withMinute(0).withSecond(0);
@@ -50,15 +58,7 @@ public class XMLParser {
         }
     }
 
-    private void addUserInMap(LocalDateTime date, int user_id, String url, long timeSpent) {
-        User user = userRepository.findById(user_id);
-        if (user == null) {
-            user = new User();
-            String userName = "Unknown" + user_id;
-            user.setName(userName);
-            userRepository.save(user);
-        }
-
+    private void addUserInMap(User user, LocalDateTime date, String url, long timeSpent) {
         LocalDate day = date.toLocalDate();
         UserSite userSite = new UserSite(user.getId(), day, user.getName(), url);
 
