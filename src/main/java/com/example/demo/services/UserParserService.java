@@ -39,6 +39,7 @@ public class UserParserService {
         // а как тогда сделать? потому что у меня в классе XMLParser есть строка "userRepository.save(user);". как поддерживать актуальные данные в репозитории не передавая его?
         // TODO: 1/8/20 тебе прихоят логи которые содержат информацию о визитах пользователей, их нужно преобразовать в объекты UserVisit
         //  для этого репозиторий не нужен,
+        // я его там использую потому что в одном логе может быть два посещения: на текущий день и на следующий
         LogParser logParser = new LogParser(userRepository, input);
         List<UserVisit> visits = logParser.parse();
         userVisitRepository.saveAll(visits);
