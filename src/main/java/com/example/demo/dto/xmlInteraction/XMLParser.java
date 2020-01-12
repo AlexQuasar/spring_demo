@@ -5,7 +5,6 @@ import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.dto.userInteraction.UserIndicators;
 import com.example.demo.dto.userInteraction.UserSite;
 import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
 import lombok.Getter;
 
 import java.time.*;
@@ -16,10 +15,10 @@ import java.util.Map;
 public class XMLParser {
 
     private Map<LocalDate, Map<UserSite, UserIndicators>> visitsMap = new HashMap<>();
-    private UserRepository userRepository;
+    Map<Integer, User> usersIdMap;
 
-    public XMLParser(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public XMLParser(Map<Integer, User> usersIdMap) {
+        this.usersIdMap = usersIdMap;
     }
 
     public void parseXML(Input input) {
@@ -34,21 +33,22 @@ public class XMLParser {
         LocalDateTime endOfDay = LocalDateTime.of(startDateTime.toLocalDate(), LocalTime.MAX);
         long secondsToEndDay = Duration.between(startDateTime, endOfDay).getSeconds();
 
-        User user = userRepository.findById(log.getUser_id());
+        int user_id = log.getUser_id();
+        User user = usersIdMap.get(user_id);
         if (user == null) {
             user = new User();
-            String userName = "Unknown" + log.getUser_id();
+            String userName = "Unknown" + user_id;
             user.setName(userName);
-            userRepository.save(user);
+            usersIdMap.put(user_id, user);
         }
 
         long timeSpentOnDay = timeSpent;
         while (timeSpentOnDay > 0) {
             timeSpentOnDay = timeSpent - secondsToEndDay;
             if (timeSpentOnDay <= 0) {
-                addUserInMap(user, startDateTime, log.getUrl(), timeSpent);
+                addUserInMap(user_id, user.getName(), startDateTime, log.getUrl(), timeSpent);
             } else {
-                addUserInMap(user, startDateTime, log.getUrl(), secondsToEndDay);
+                addUserInMap(user_id, user.getName(), startDateTime, log.getUrl(), secondsToEndDay);
                 timeSpent -= secondsToEndDay;
 
                 startDateTime = startDateTime.plusDays(1L).withHour(0).withMinute(0).withSecond(0);
@@ -58,9 +58,9 @@ public class XMLParser {
         }
     }
 
-    private void addUserInMap(User user, LocalDateTime date, String url, long timeSpent) {
+    private void addUserInMap(int user_id, String userName, LocalDateTime date, String url, long timeSpent) {
         LocalDate day = date.toLocalDate();
-        UserSite userSite = new UserSite(user.getId(), day, user.getName(), url);
+        UserSite userSite = new UserSite(user_id, day, userName, url);
 
         Integer timeSpentInt = (int) timeSpent;
         Duration timeInterval = Duration.between(date, date.plusSeconds(timeSpent));

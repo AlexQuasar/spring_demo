@@ -1,5 +1,6 @@
 package com.example.demo.web.input;
 
+import com.example.demo.dto.userInteraction.UserAveragePresence;
 import com.example.demo.dto.xmlStructure.input.Input;
 import com.example.demo.entity.UserVisit;
 import com.example.demo.services.UserParserService;
@@ -30,13 +31,11 @@ public class UserRestController {
     }
 
     @GetMapping("/getGroupedUserVisits")
-    public List<UserVisit> getGroupedUserVisits() {
+    public List<UserAveragePresence> getGroupedUserVisits() {
         return userParserService.getGroupedUserVisits();
     }
 
     @PostMapping("/addLogs")
-    // TODO: 1/8/20 пока лучше обойтись без xml, начнем с Json объекта с аналогичными полями
-    // у меня уже xml готов в postman и я его уже протестил
     public String addLogs(@RequestBody Input input) {
         userParserService.addLogs(input);
         return "logs added";

@@ -11,6 +11,6 @@ public class UserSite {
 
     public int user_id;
     public LocalDate day;
-    public String userId;
+    public String userName;
     public String url;
 }
