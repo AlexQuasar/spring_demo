@@ -32,7 +32,7 @@ public class LogParser implements Parser<Input, List<UserVisit>> {
                 UserIndicators userIndicators = entry.getValue();
                 UserVisit userVisit = new UserVisit();
                 userVisit.setDay(entryDate.getKey());
-                userVisit.setUser(usersIdMap.get(userSite.user_id));
+                userVisit.setUser(usersIdMap.get(userSite.user_id)); // TODO: 1/13/20 у тебя в исходном запросе (Input) userId это скорее userName чем его id в базе, посмотри внимательно исходный пдф с заданием.
                 userVisit.setUrl(userSite.url);
                 userVisit.setTimeSpent(userIndicators.timeSpent);
                 userVisit.setTimeInterval(userIndicators.timeInterval);

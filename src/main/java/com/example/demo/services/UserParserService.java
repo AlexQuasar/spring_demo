@@ -52,6 +52,7 @@ public class UserParserService {
         //  я бы копал в эту степь. Если не получится, то первый вариант тоже приемлем.
         // сделал, чтобы репозитории не передавались, но теперь есть небольшой нюанс - тот id, с которым они приходят из xml, теряется
         // и им, при записи в репозиторий, уже присваивается другой совсем id
+        // TODO: 1/12/20 если исходить из того что username уникален, то я бы поле id из request вообще бы убрал
         LogParser logParser = new LogParser(getUsersIdMap(userRepository.findAll()));
         List<UserVisit> visits = logParser.parse(input);
         userVisitRepository.saveAll(visits);
