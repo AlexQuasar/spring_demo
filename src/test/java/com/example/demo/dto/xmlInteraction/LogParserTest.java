@@ -1,22 +1,22 @@
 package com.example.demo.dto.xmlInteraction;
 
 import com.example.demo.UserDataGenerator;
-import com.example.demo.dto.userInteraction.UserIndicators;
-import com.example.demo.dto.userInteraction.UserSite;
 import com.example.demo.dto.xmlStructure.input.Input;
 import com.example.demo.entity.User;
+import com.example.demo.entity.UserVisit;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-public class XMLParserTest {
+public class LogParserTest {
 
     @Test
-    public void parseXMLTest() {
+    public void parseTest() {
         int countDays = 3;
         int countUsers = 5;
         LocalDateTime date = LocalDateTime.now();
@@ -24,11 +24,15 @@ public class XMLParserTest {
         Input input = userDataGenerator.generateInput(countDays, countUsers, "site", date);
         Map<String, User> usersNameMap = userDataGenerator.getUsersNameMap();
 
-        XMLParser xmlParser = new XMLParser(usersNameMap);
-        xmlParser.parseXML(input);
-        Map<LocalDate, Map<UserSite, UserIndicators>> visitsMap = xmlParser.getVisitsMap();
+        LogParser logParser = new LogParser(usersNameMap);
+        List<UserVisit> visits = logParser.parse(input);
 
-        assertEquals(countDays, visitsMap.size());
-        assertEquals(countUsers, visitsMap.get(date.toLocalDate()).values().size());
+        assertEquals(countDays * countUsers, visits.size());
+
+        User user = visits.get(0).getUser();
+        List<UserVisit> matches = visits.stream()
+                .filter(i -> i.getUser().equals(user))
+                .collect(Collectors.toList());
+        assertEquals(countDays, matches.size());
     }
 }

@@ -16,11 +16,11 @@ import java.util.Map;
 @AllArgsConstructor
 public class LogParser implements Parser<Input, List<UserVisit>> {
 
-    Map<Integer, User> usersIdMap;
+    Map<String, User> usersNameMap;
 
     @Override
     public List<UserVisit> parse(Input input) {
-        XMLParser xmlParser = new XMLParser(usersIdMap);
+        XMLParser xmlParser = new XMLParser(usersNameMap);
         xmlParser.parseXML(input);
 
         Map<LocalDate, Map<UserSite, UserIndicators>> dateUserMap = xmlParser.getVisitsMap();
@@ -32,7 +32,7 @@ public class LogParser implements Parser<Input, List<UserVisit>> {
                 UserIndicators userIndicators = entry.getValue();
                 UserVisit userVisit = new UserVisit();
                 userVisit.setDay(entryDate.getKey());
-                userVisit.setUser(usersIdMap.get(userSite.user_id)); // TODO: 1/13/20 у тебя в исходном запросе (Input) userId это скорее userName чем его id в базе, посмотри внимательно исходный пдф с заданием.
+                userVisit.setUser(usersNameMap.get(userSite.userName));
                 userVisit.setUrl(userSite.url);
                 userVisit.setTimeSpent(userIndicators.timeSpent);
                 userVisit.setTimeInterval(userIndicators.timeInterval);

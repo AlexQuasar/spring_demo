@@ -17,8 +17,8 @@ public class Log {
     @JacksonXmlProperty(localName = "timestamp")
     private Long timestamp;
 
-    @JacksonXmlProperty(localName = "user_id")
-    private int user_id;
+    @JacksonXmlProperty(localName = "userId")
+    private String userId;
 
     @JacksonXmlProperty(localName = "url")
     private String url;

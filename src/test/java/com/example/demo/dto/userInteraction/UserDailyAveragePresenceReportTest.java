@@ -17,9 +17,9 @@ public class UserDailyAveragePresenceReportTest {
         int timeSpent = 10;
         UserDataGenerator userDataGenerator = new UserDataGenerator();
         List<UserVisit> userVisits = userDataGenerator.generateUserVisits(5, 1, timeSpent, "site");
-        Map<Integer, User> usersIdMap = userDataGenerator.getUsersIdMap();
+        Map<String, User> usersNameMap = userDataGenerator.getUsersNameMap();
 
-        UserDailyAveragePresenceReport averagePresenceReport = new UserDailyAveragePresenceReport(usersIdMap, userVisits);
+        UserDailyAveragePresenceReport averagePresenceReport = new UserDailyAveragePresenceReport(usersNameMap, userVisits);
         List<UserAveragePresence> visits = averagePresenceReport.getGroupUsers();
 
         assertEquals(1, visits.size());
@@ -30,9 +30,9 @@ public class UserDailyAveragePresenceReportTest {
     public void getGroupUsersTest() {
         UserDataGenerator userDataGenerator = new UserDataGenerator();
         List<UserVisit> userVisits = userDataGenerator.generateUserVisits(20, 4, "site");
-        Map<Integer, User> usersIdMap = userDataGenerator.getUsersIdMap();
+        Map<String, User> usersNameMap = userDataGenerator.getUsersNameMap();
 
-        UserDailyAveragePresenceReport averagePresenceReport = new UserDailyAveragePresenceReport(usersIdMap, userVisits);
+        UserDailyAveragePresenceReport averagePresenceReport = new UserDailyAveragePresenceReport(usersNameMap, userVisits);
         List<UserAveragePresence> visits = averagePresenceReport.getGroupUsers();
 
         assertEquals(4, visits.size());

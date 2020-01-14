@@ -74,7 +74,7 @@ public class UserDataGenerator {
 
             Long timestamp = Timestamp.valueOf(date.plusDays(i - 1)).getTime() / 1000L;
             for (User user : users) {
-                Log log = new Log(timestamp, user.getId(), url, seconds);
+                Log log = new Log(timestamp, user.getName(), url, seconds);
                 logs.add(log);
             }
         }
@@ -83,11 +83,11 @@ public class UserDataGenerator {
         return input;
     }
 
-    public Map<Integer, User> getUsersIdMap() {
-        Map<Integer, User> usersIdMap = new HashMap<>();
+    public Map<String, User> getUsersNameMap() {
+        Map<String, User> usersNameMap = new HashMap<>();
         for (User user : users) {
-            usersIdMap.put(user.getId(), user);
+            usersNameMap.put(user.getName(), user);
         }
-        return usersIdMap;
+        return usersNameMap;
     }
 }

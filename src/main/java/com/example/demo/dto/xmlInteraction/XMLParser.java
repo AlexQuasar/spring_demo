@@ -15,10 +15,10 @@ import java.util.Map;
 public class XMLParser {
 
     private Map<LocalDate, Map<UserSite, UserIndicators>> visitsMap = new HashMap<>();
-    Map<Integer, User> usersIdMap;
+    Map<String, User> usersNameMap;
 
-    public XMLParser(Map<Integer, User> usersIdMap) {
-        this.usersIdMap = usersIdMap;
+    public XMLParser(Map<String, User> usersNameMap) {
+        this.usersNameMap = usersNameMap;
     }
 
     public void parseXML(Input input) {
@@ -33,22 +33,21 @@ public class XMLParser {
         LocalDateTime endOfDay = LocalDateTime.of(startDateTime.toLocalDate(), LocalTime.MAX);
         long secondsToEndDay = Duration.between(startDateTime, endOfDay).getSeconds();
 
-        int user_id = log.getUser_id();
-        User user = usersIdMap.get(user_id);
+        String userName = log.getUserId();
+        User user = usersNameMap.get(userName);
         if (user == null) {
             user = new User();
-            String userName = "Unknown" + user_id;
             user.setName(userName);
-            usersIdMap.put(user_id, user);
+            usersNameMap.put(userName, user);
         }
 
         long timeSpentOnDay = timeSpent;
         while (timeSpentOnDay > 0) {
             timeSpentOnDay = timeSpent - secondsToEndDay;
             if (timeSpentOnDay <= 0) {
-                addUserInMap(user_id, user.getName(), startDateTime, log.getUrl(), timeSpent);
+                addUserInMap(user.getName(), startDateTime, log.getUrl(), timeSpent);
             } else {
-                addUserInMap(user_id, user.getName(), startDateTime, log.getUrl(), secondsToEndDay);
+                addUserInMap(user.getName(), startDateTime, log.getUrl(), secondsToEndDay);
                 timeSpent -= secondsToEndDay;
 
                 startDateTime = startDateTime.plusDays(1L).withHour(0).withMinute(0).withSecond(0);
@@ -58,9 +57,9 @@ public class XMLParser {
         }
     }
 
-    private void addUserInMap(int user_id, String userName, LocalDateTime date, String url, long timeSpent) {
+    private void addUserInMap(String userName, LocalDateTime date, String url, long timeSpent) {
         LocalDate day = date.toLocalDate();
-        UserSite userSite = new UserSite(user_id, day, userName, url);
+        UserSite userSite = new UserSite(0, day, userName, url);
 
         Integer timeSpentInt = (int) timeSpent;
         Duration timeInterval = Duration.between(date, date.plusSeconds(timeSpent));

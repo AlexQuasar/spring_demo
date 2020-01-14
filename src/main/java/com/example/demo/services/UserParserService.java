@@ -17,6 +17,8 @@ import java.util.Map;
 @Service
 public class UserParserService {
 
+    // TODO: 1/14/20 не могу понять как тесты писать на этот класс, потому что тут репозитории тянутся.
+    //  мне для тестов этого класса надо спринг поднимать или как-то имитировать репозитории?
     private UserVisitRepository userVisitRepository;
     private UserRepository userRepository;
 
@@ -34,7 +36,7 @@ public class UserParserService {
     }
 
     public List<UserAveragePresence> getGroupedUserVisits() {
-        UserDailyAveragePresenceReport averagePresenceReport = new UserDailyAveragePresenceReport(getUsersIdMap(userRepository.findAll()), userVisitRepository.findAll());
+        UserDailyAveragePresenceReport averagePresenceReport = new UserDailyAveragePresenceReport(getUsersNameMap(userRepository.findAll()), userVisitRepository.findAll());
         return averagePresenceReport.getGroupUsers();
     }
 
@@ -53,14 +55,14 @@ public class UserParserService {
         // сделал, чтобы репозитории не передавались, но теперь есть небольшой нюанс - тот id, с которым они приходят из xml, теряется
         // и им, при записи в репозиторий, уже присваивается другой совсем id
         // TODO: 1/12/20 если исходить из того что username уникален, то я бы поле id из request вообще бы убрал
-        LogParser logParser = new LogParser(getUsersIdMap(userRepository.findAll()));
+        LogParser logParser = new LogParser(getUsersNameMap(userRepository.findAll()));
         List<UserVisit> visits = logParser.parse(input);
         userVisitRepository.saveAll(visits);
     }
 
-    private Map<Integer, User> getUsersIdMap(List<User> users) {
-        Map<Integer, User> usersIdMap = new HashMap<>();
-        users.forEach(i -> usersIdMap.put(i.getId(), i));
-        return usersIdMap;
+    private Map<String, User> getUsersNameMap(List<User> users) {
+        Map<String, User> usersNameMap = new HashMap<>();
+        users.forEach(i -> usersNameMap.put(i.getName(), i));
+        return usersNameMap;
     }
 }

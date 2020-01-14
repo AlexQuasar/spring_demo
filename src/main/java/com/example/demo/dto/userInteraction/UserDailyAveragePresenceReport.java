@@ -12,7 +12,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class UserDailyAveragePresenceReport {
 
-    Map<Integer, User> usersIdMap;
+    Map<String, User> usersNameMap;
     List<UserVisit> userVisits;
 
     public List<UserAveragePresence> getGroupUsers() {
@@ -37,7 +37,7 @@ public class UserDailyAveragePresenceReport {
             UserVisit userVisit = new UserVisit();
             userVisit.setId(userIndicators.user_visit_id);
             userVisit.setDay(userSite.day);
-            userVisit.setUser(usersIdMap.get(userSite.user_id));
+            userVisit.setUser(usersNameMap.get(userSite.userName));
             userVisit.setUrl(userSite.url);
             userVisit.setTimeSpent(userIndicators.timeSpent);
             userVisit.setTimeInterval(userIndicators.timeInterval);
