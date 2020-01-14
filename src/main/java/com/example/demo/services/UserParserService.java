@@ -19,6 +19,7 @@ public class UserParserService {
 
     // TODO: 1/14/20 не могу понять как тесты писать на этот класс, потому что тут репозитории тянутся.
     //  мне для тестов этого класса надо спринг поднимать или как-то имитировать репозитории?
+    // TODO: 1/14/20  https://habr.com/ru/post/243155/ https://springframework.guru/mocking-unit-tests-mockito/
     private UserVisitRepository userVisitRepository;
     private UserRepository userRepository;
 
