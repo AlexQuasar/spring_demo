@@ -25,12 +25,36 @@ public class UserDataGenerator {
         return users;
     }
 
+    public UserVisit generateUserVisit(int id, LocalDateTime date, int countUsers, int timeSpent, String url) {
+        if (countUsers == 0) {
+            return null;
+        }
+        if (users.size() < countUsers) {
+            generateUsers(countUsers - users.size());
+        }
+
+        UserVisit userVisit = new UserVisit();
+        userVisit.setId(id);
+        userVisit.setDay(date.toLocalDate());
+        userVisit.setUser(users.get(random.nextInt(countUsers)));
+        userVisit.setUrl(url);
+        userVisit.setTimeSpent(timeSpent);
+        userVisit.setTimeInterval(Duration.between(date, date.plusSeconds(timeSpent)));
+
+        return userVisit;
+    }
+
     public List<UserVisit> generateUserVisits(int countVisits, int countUsers, String url) {
         return generateUserVisits(countVisits, countUsers, 0, url);
     }
 
     public List<UserVisit> generateUserVisits(int countVisits, int countUsers, int timeSpent, String url) {
         List<UserVisit> visits = new ArrayList<>();
+
+        if (countUsers == 0) {
+            return visits;
+        }
+
         generateUsers(countUsers);
 
         LocalDateTime date = LocalDateTime.now();
@@ -42,13 +66,7 @@ public class UserDataGenerator {
                 url = "urlSite" + i;
             }
 
-            UserVisit userVisit = new UserVisit();
-            userVisit.setId(i);
-            userVisit.setDay(date.toLocalDate());
-            userVisit.setUser(users.get(random.nextInt(countUsers)));
-            userVisit.setUrl(url);
-            userVisit.setTimeSpent(timeSpent);
-            userVisit.setTimeInterval(Duration.between(date, date.plusSeconds(timeSpent)));
+            UserVisit userVisit = generateUserVisit(i, date, countUsers, timeSpent, url);
             visits.add(userVisit);
         }
 
