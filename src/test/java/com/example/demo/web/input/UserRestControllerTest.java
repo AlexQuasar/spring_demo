@@ -1,8 +1,12 @@
 package com.example.demo.web.input;
 
+import com.example.demo.UserDataGenerator;
 import com.example.demo.dto.userInteraction.UserAveragePresence;
+import com.example.demo.dto.xmlStructure.input.Input;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.UserVisitRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
@@ -18,10 +22,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -45,6 +51,12 @@ public class UserRestControllerTest {
     public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("target/generated-snippets");
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    UserVisitRepository userVisitRepository;
+
+    @Autowired
     ObjectMapper mapper;
 
     Logger log = Logger.getLogger(UserRestControllerTest.class.getName());
@@ -59,20 +71,30 @@ public class UserRestControllerTest {
     }
 
     @Test
+    @Transactional
+    public void addVisitsTest() throws Exception {
+        String addVisits = userController + "/addVisits";
+
+        List<UserVisit> visits = new ArrayList<>();
+        visits.add(generateUserVisit());
+
+        int expectedVisitsSize = visits.size() + userVisitRepository.findAll().size();
+
+        mockMvc.perform(post(addVisits)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(visits)))
+        .andExpect(status().isOk());
+
+        assertEquals(expectedVisitsSize, userVisitRepository.findAll().size());
+    }
+
+    @Test
+    @Transactional
     public void addVisitTest() throws Exception {
         String addVisit = userController + "/addVisit";
 
-        LocalDateTime day = LocalDateTime.now();
-        int timeSpent = 100;
-
-        User user = new User();
-        user.setName("Petya");
-        UserVisit userVisit = new UserVisit();
-        userVisit.setDay(day.toLocalDate());
-        userVisit.setUser(user);
-        userVisit.setUrl("http://google.com");
-        userVisit.setTimeSpent(timeSpent);
-        userVisit.setTimeInterval(Duration.between(day, day.plusSeconds(timeSpent)));
+        UserVisit userVisit = generateUserVisit();
 
         mockMvc.perform(post(addVisit)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -95,5 +117,38 @@ public class UserRestControllerTest {
         List<UserAveragePresence> visits = mapper.readValue(content, new TypeReference<List<UserAveragePresence>>() {});
 
         assertNotEquals(0, visits.size());
+    }
+
+    @Test
+    @Transactional
+    public void addLogsTest() throws Exception {
+        String addLogs = userController + "/addLogs";
+        String filePath = "./src/test/java/com/example/demo/testInputXML/input.xml";
+        UserDataGenerator userDataGenerator = new UserDataGenerator();
+        Input input = userDataGenerator.getInputFromFile(filePath);
+        int expectedVisitsSize = input.getLogs().size() + userVisitRepository.findAll().size();
+
+        mockMvc.perform(post(addLogs)
+                .contentType(MediaType.APPLICATION_XML)
+                .content(mapper.writeValueAsString(input))) // TODO: 1/19/20 не могу понять в чем тут проблема, прилетает 400 ошибка
+        .andExpect(status().isOk());
+
+        assertEquals(expectedVisitsSize, userVisitRepository.findAll().size());
+    }
+
+    private UserVisit generateUserVisit() {
+        LocalDateTime day = LocalDateTime.now();
+        int timeSpent = 100;
+
+        User user = new User();
+        user.setName("Petya");
+        UserVisit userVisit = new UserVisit();
+        userVisit.setDay(day.toLocalDate());
+        userVisit.setUser(user);
+        userVisit.setUrl("http://google.com");
+        userVisit.setTimeSpent(timeSpent);
+        userVisit.setTimeInterval(Duration.between(day, day.plusSeconds(timeSpent)));
+
+        return userVisit;
     }
 }

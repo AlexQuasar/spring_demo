@@ -4,7 +4,10 @@ import com.example.demo.dto.xmlStructure.input.Input;
 import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import lombok.SneakyThrows;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -13,6 +16,7 @@ import java.util.*;
 public class UserDataGenerator {
 
     private Random random = new Random();
+    private XmlMapper xmlMapper = new XmlMapper();
     public List<User> users = new ArrayList<>();
 
     public List<User> generateUsers(int count) {
@@ -74,15 +78,18 @@ public class UserDataGenerator {
     }
 
     public Input generateInput(int countDays, int countUsers, String url, LocalDateTime date) {
-        return generateInput(countDays, countUsers, url, 0L, date);
+        return generateInput(countDays, countUsers, 0, url, 0L, date);
     }
 
-    public Input generateInput(int countDays, int countUsers, String url, long seconds, LocalDateTime date) {
+    public Input generateInput(int countDays, int countUsers, int countUserDuplicate, String url, long seconds, LocalDateTime date) {
         Input input = new Input();
         List<Log> logs = new ArrayList<>();
         generateUsers(countUsers);
 
         for (int i = 1; i <= countDays; i++) {
+            if (countUserDuplicate == 0) {
+                countUserDuplicate = 1;
+            }
             if (url.equals("")) {
                 url = "urlSite" + i;
             }
@@ -92,13 +99,20 @@ public class UserDataGenerator {
 
             Long timestamp = Timestamp.valueOf(date.plusDays(i - 1)).getTime() / 1000L;
             for (User user : users) {
-                Log log = new Log(timestamp, user.getName(), url, seconds);
-                logs.add(log);
+                for (int j = 0; j < countUserDuplicate; j++) {
+                    Log log = new Log(timestamp, user.getName(), url, seconds);
+                    logs.add(log);
+                }
             }
         }
         input.setLogs(logs);
 
         return input;
+    }
+
+    @SneakyThrows
+    public Input getInputFromFile(String filePath) {
+        return xmlMapper.readValue(new File(filePath), Input.class);
     }
 
     public Map<String, User> getUsersNameMap() {

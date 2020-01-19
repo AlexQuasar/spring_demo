@@ -12,6 +12,9 @@ spring:
 #    username: postgres
 #    password: toor
 #    driverClassName: org.postgresql.Driver
+  flyway:
+    baselineOnMigrate: true
+    locations: filesystem:db/migration
 
 datasource:
   url: jdbc:postgresql://localhost:5432/postgres
