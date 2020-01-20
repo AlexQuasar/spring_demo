@@ -61,6 +61,10 @@ public class UserParserServiceTest {
 
         verify(userRepository).findAll();
         verify(userVisitRepository).findAll();
+        // TODO: 1/20/20 оригинально, но во-первых тогда уж так assertTrue(groupedUserVisits.isEmpty());, а во вторых я бы использовал verify, например,
+        //  в методах delete или save а вот в findAll как раз следует какие-то данные вернуть через when и проверить то ли нам пришло в итоге
+        //  из getGroupedUserVisits
+        assertTrue(groupedUserVisits.isEmpty());
         assertEquals(new ArrayList<>(), groupedUserVisits);
     }
 

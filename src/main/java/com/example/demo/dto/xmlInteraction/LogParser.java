@@ -34,6 +34,7 @@ public class LogParser implements Parser<Input, List<UserVisit>> {
         }
 
         executorService.shutdown();
+        // TODO: 1/20/20 найди поизящней способ завершения, есть минимум 2 способа
         while (!executorService.isTerminated()) {
             Thread.sleep(3000);
         }

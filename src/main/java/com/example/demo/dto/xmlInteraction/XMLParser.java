@@ -65,6 +65,7 @@ public class XMLParser implements Runnable {
             }
         }
         // TODO: 1/19/20 со sleep зависает и тест не кончается
+        // TODO: 1/20/20 какой тест? дебажить пробовал? добавляй логирование
 //        try {
 //            Thread.sleep(10);
 //        } catch (InterruptedException e) {
