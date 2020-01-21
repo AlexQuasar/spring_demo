@@ -2,20 +2,18 @@ package com.example.demo.dto.xmlInteraction;
 
 import com.example.demo.dto.xmlInteraction.interfaces.Parser;
 import com.example.demo.dto.xmlStructure.input.Input;
-import com.example.demo.dto.userInteraction.UserIndicators;
-import com.example.demo.dto.userInteraction.UserSite;
 import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
 public class LogParser implements Parser<Input, List<UserVisit>> {
@@ -34,30 +32,12 @@ public class LogParser implements Parser<Input, List<UserVisit>> {
         }
 
         executorService.shutdown();
-        // TODO: 1/20/20 найди поизящней способ завершения, есть минимум 2 способа
-        while (!executorService.isTerminated()) {
-            Thread.sleep(3000);
+        boolean isNotTerminated = true;
+        // сделал так, но складывается такое ощущение что он нифига не дожидается, когда данные обрабатываются быстро
+        // не могу разобраться
+        while (isNotTerminated) {
+            isNotTerminated = !executorService.awaitTermination(3, TimeUnit.SECONDS);
         }
-//        XMLParser xmlParser = new XMLParser(visits, usersNameMap);
-//        xmlParser.parseXML(input);
-//
-//        Map<LocalDate, Map<UserSite, UserIndicators>> dateUserMap = xmlParser.getVisitsMap();
-//
-//        List<UserVisit> visits = new ArrayList<>();
-//        for (Map.Entry<LocalDate, Map<UserSite, UserIndicators>> entryDate : dateUserMap.entrySet()) {
-//            for (Map.Entry<UserSite, UserIndicators> entry : entryDate.getValue().entrySet()) {
-//                UserSite userSite = entry.getKey();
-//                UserIndicators userIndicators = entry.getValue();
-//                UserVisit userVisit = new UserVisit();
-//                userVisit.setDay(entryDate.getKey());
-//                userVisit.setUser(usersNameMap.get(userSite.userName));
-//                userVisit.setUrl(userSite.url);
-//                userVisit.setTimeSpent(userIndicators.timeSpent);
-//                userVisit.setTimeInterval(userIndicators.timeInterval);
-//
-//                visits.add(userVisit);
-//            }
-//        }
 
         return visits;
     }

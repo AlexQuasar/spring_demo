@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
@@ -41,8 +42,9 @@ public class XMLParserTest {
         }
 
         executorService.shutdown();
-        while (!executorService.isTerminated()) {
-            Thread.sleep(3000);
+        boolean isNotTerminated = true;
+        while (isNotTerminated) {
+            isNotTerminated = !executorService.awaitTermination(3, TimeUnit.SECONDS);
         }
 
         assertEquals(countDays * countUsers * countUserDuplicate, visits.size());
@@ -52,7 +54,7 @@ public class XMLParserTest {
     @Test
     public void benchmarkTest() {
         int countDays = 5;
-        int countUsers = 10000;
+        int countUsers = 1000;
         int countUserDuplicate = 10;
         LocalDateTime date = LocalDateTime.now();
         UserDataGenerator userDataGenerator = new UserDataGenerator();
@@ -66,8 +68,9 @@ public class XMLParserTest {
             executorService.submit(new XMLParser(visits, usersNameMap, log));
         }
         executorService.shutdown();
-        while (!executorService.isTerminated()) {
-            Thread.sleep(3000);
+        boolean isNotTerminated = true;
+        while (isNotTerminated) {
+            isNotTerminated = !executorService.awaitTermination(3, TimeUnit.SECONDS);
         }
         Duration betweenOneThread = Duration.between(startTime, LocalDateTime.now());
 
@@ -79,8 +82,9 @@ public class XMLParserTest {
             executorService.submit(new XMLParser(visits, usersNameMap, log));
         }
         executorService.shutdown();
-        while (!executorService.isTerminated()) {
-            Thread.sleep(3000);
+        isNotTerminated = true;
+        while (isNotTerminated) {
+            isNotTerminated = !executorService.awaitTermination(3, TimeUnit.SECONDS);
         }
         Duration betweenTenThread = Duration.between(startTime, LocalDateTime.now());
 

@@ -64,6 +64,7 @@ public class UserParserServiceTest {
         // TODO: 1/20/20 оригинально, но во-первых тогда уж так assertTrue(groupedUserVisits.isEmpty());, а во вторых я бы использовал verify, например,
         //  в методах delete или save а вот в findAll как раз следует какие-то данные вернуть через when и проверить то ли нам пришло в итоге
         //  из getGroupedUserVisits
+        // в том то и дело, что я ведь не знаю какие данные мне сюда приходят, как их проверить через when? этого я не смог пока понять
         assertTrue(groupedUserVisits.isEmpty());
         assertEquals(new ArrayList<>(), groupedUserVisits);
     }
