@@ -35,6 +35,8 @@ public class LogParser implements Parser<Input, List<UserVisit>> {
         boolean isNotTerminated = true;
         // сделал так, но складывается такое ощущение что он нифига не дожидается, когда данные обрабатываются быстро
         // не могу разобраться
+        // TODO: 1/21/20 стоит прочитать javadoc что этот метод делает что принимает в качестве аргументов и что возвращает
+        //  мне кажется све эти 3 вещи от тебя ускользают. В крайнем случае есть еще один способ
         while (isNotTerminated) {
             isNotTerminated = !executorService.awaitTermination(3, TimeUnit.SECONDS);
         }

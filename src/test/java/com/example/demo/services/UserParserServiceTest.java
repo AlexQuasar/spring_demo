@@ -65,6 +65,7 @@ public class UserParserServiceTest {
         //  в методах delete или save а вот в findAll как раз следует какие-то данные вернуть через when и проверить то ли нам пришло в итоге
         //  из getGroupedUserVisits
         // в том то и дело, что я ведь не знаю какие данные мне сюда приходят, как их проверить через when? этого я не смог пока понять
+        // TODO: 1/21/20 when не чтобы проверять, а чтобы подменять создаваемые фейковые данные https://www.baeldung.com/mockito-behavior
         assertTrue(groupedUserVisits.isEmpty());
         assertEquals(new ArrayList<>(), groupedUserVisits);
     }
