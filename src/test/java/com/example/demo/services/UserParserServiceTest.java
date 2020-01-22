@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -57,17 +56,24 @@ public class UserParserServiceTest {
 
     @Test
     public void getGroupedUserVisitsTest() {
+        UserDataGenerator userDataGenerator = new UserDataGenerator();
         List<UserAveragePresence> groupedUserVisits = userParserService.getGroupedUserVisits();
 
-        verify(userRepository).findAll();
-        verify(userVisitRepository).findAll();
         // TODO: 1/20/20 оригинально, но во-первых тогда уж так assertTrue(groupedUserVisits.isEmpty());, а во вторых я бы использовал verify, например,
         //  в методах delete или save а вот в findAll как раз следует какие-то данные вернуть через when и проверить то ли нам пришло в итоге
         //  из getGroupedUserVisits
         // в том то и дело, что я ведь не знаю какие данные мне сюда приходят, как их проверить через when? этого я не смог пока понять
         // TODO: 1/21/20 when не чтобы проверять, а чтобы подменять создаваемые фейковые данные https://www.baeldung.com/mockito-behavior
+        // как я это понял. но зачем тогда нам тут вообще "userParserService.getGroupedUserVisits()"?
+        List<UserVisit> visits = userDataGenerator.generateUserVisits(1, 1, 10, "site");
+        when(userRepository.findAll()).thenReturn(userDataGenerator.users);
+        when(userVisitRepository.findAll()).thenReturn(visits);
+
         assertTrue(groupedUserVisits.isEmpty());
-        assertEquals(new ArrayList<>(), groupedUserVisits);
+        assertNotNull(userRepository.findAll());
+        assertEquals(userDataGenerator.users.size(), userRepository.findAll().size());
+        assertNotNull(userVisitRepository.findAll());
+        assertEquals(visits.size(), userVisitRepository.findAll().size());
     }
 
     @Test

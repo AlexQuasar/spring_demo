@@ -37,6 +37,10 @@ public class LogParser implements Parser<Input, List<UserVisit>> {
         // не могу разобраться
         // TODO: 1/21/20 стоит прочитать javadoc что этот метод делает что принимает в качестве аргументов и что возвращает
         //  мне кажется све эти 3 вещи от тебя ускользают. В крайнем случае есть еще один способ
+        // пробовал через CountDownLatch - не получилось
+        // с invokeAll() не разобрался как дожидаться всех потоков
+        // ExecutorCompletionService вообще не понял
+        // поэтому сделал как смог, с остальным, как написал выше "не могу разобраться"
         while (isNotTerminated) {
             isNotTerminated = !executorService.awaitTermination(3, TimeUnit.SECONDS);
         }
