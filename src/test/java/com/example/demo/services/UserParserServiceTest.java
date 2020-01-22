@@ -9,6 +9,7 @@ import com.example.demo.repository.UserVisitRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -27,12 +28,9 @@ public class UserParserServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @InjectMocks
     UserParserService userParserService;
 
-    @Before
-    public void setUp() {
-        userParserService = new UserParserService(userVisitRepository, userRepository);
-    }
 
     @Test
     public void addVisitTest() {
@@ -57,6 +55,10 @@ public class UserParserServiceTest {
     @Test
     public void getGroupedUserVisitsTest() {
         UserDataGenerator userDataGenerator = new UserDataGenerator();
+        List<UserVisit> visits = userDataGenerator.generateUserVisits(1, 1, 10, "site");
+        when(userRepository.findAll()).thenReturn(userDataGenerator.users);
+        when(userVisitRepository.findAll()).thenReturn(visits);
+        // TODO: 1/23/20 сначала задаешь поведение потом вызываешь тестируемый метод
         List<UserAveragePresence> groupedUserVisits = userParserService.getGroupedUserVisits();
 
         // TODO: 1/20/20 оригинально, но во-первых тогда уж так assertTrue(groupedUserVisits.isEmpty());, а во вторых я бы использовал verify, например,
@@ -65,15 +67,11 @@ public class UserParserServiceTest {
         // в том то и дело, что я ведь не знаю какие данные мне сюда приходят, как их проверить через when? этого я не смог пока понять
         // TODO: 1/21/20 when не чтобы проверять, а чтобы подменять создаваемые фейковые данные https://www.baeldung.com/mockito-behavior
         // как я это понял. но зачем тогда нам тут вообще "userParserService.getGroupedUserVisits()"?
-        List<UserVisit> visits = userDataGenerator.generateUserVisits(1, 1, 10, "site");
-        when(userRepository.findAll()).thenReturn(userDataGenerator.users);
-        when(userVisitRepository.findAll()).thenReturn(visits);
 
-        assertTrue(groupedUserVisits.isEmpty());
-        assertNotNull(userRepository.findAll());
-        assertEquals(userDataGenerator.users.size(), userRepository.findAll().size());
-        assertNotNull(userVisitRepository.findAll());
-        assertEquals(visits.size(), userVisitRepository.findAll().size());
+
+        // TODO: 1/23/20 в итоге ожидаешь что данные не пустые, хотя бы, но желательно больше ассертов. Только не тех что ты написал.
+        assertFalse(groupedUserVisits.isEmpty());
+
     }
 
     @Test
