@@ -54,24 +54,18 @@ public class UserParserServiceTest {
 
     @Test
     public void getGroupedUserVisitsTest() {
+        int countVisits = 5;
+        int countUsers = 1;
+        int timeSpent = 10;
         UserDataGenerator userDataGenerator = new UserDataGenerator();
-        List<UserVisit> visits = userDataGenerator.generateUserVisits(1, 1, 10, "site");
+        List<UserVisit> visits = userDataGenerator.generateUserVisits(countVisits, countUsers, timeSpent, "site");
         when(userRepository.findAll()).thenReturn(userDataGenerator.users);
         when(userVisitRepository.findAll()).thenReturn(visits);
-        // TODO: 1/23/20 сначала задаешь поведение потом вызываешь тестируемый метод
+
         List<UserAveragePresence> groupedUserVisits = userParserService.getGroupedUserVisits();
 
-        // TODO: 1/20/20 оригинально, но во-первых тогда уж так assertTrue(groupedUserVisits.isEmpty());, а во вторых я бы использовал verify, например,
-        //  в методах delete или save а вот в findAll как раз следует какие-то данные вернуть через when и проверить то ли нам пришло в итоге
-        //  из getGroupedUserVisits
-        // в том то и дело, что я ведь не знаю какие данные мне сюда приходят, как их проверить через when? этого я не смог пока понять
-        // TODO: 1/21/20 when не чтобы проверять, а чтобы подменять создаваемые фейковые данные https://www.baeldung.com/mockito-behavior
-        // как я это понял. но зачем тогда нам тут вообще "userParserService.getGroupedUserVisits()"?
-
-
-        // TODO: 1/23/20 в итоге ожидаешь что данные не пустые, хотя бы, но желательно больше ассертов. Только не тех что ты написал.
-        assertFalse(groupedUserVisits.isEmpty());
-
+        assertEquals(countUsers, groupedUserVisits.size());
+        assertEquals(timeSpent, groupedUserVisits.get(0).getAverage().intValue());
     }
 
     @Test
