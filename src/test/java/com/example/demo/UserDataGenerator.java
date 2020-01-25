@@ -1,7 +1,7 @@
 package com.example.demo;
 
-import com.example.demo.dto.xmlStructure.input.Input;
 import com.example.demo.dto.xmlStructure.input.Log;
+import com.example.demo.dto.xmlStructure.input.LogEntry;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -77,13 +77,13 @@ public class UserDataGenerator {
         return visits;
     }
 
-    public Input generateInput(int countDays, int countUsers, String url, LocalDateTime date) {
-        return generateInput(countDays, countUsers, 0, url, 0L, date);
+    public Log generateLog(int countDays, int countUsers, String url, LocalDateTime date) {
+        return generateLog(countDays, countUsers, 0, url, 0L, date);
     }
 
-    public Input generateInput(int countDays, int countUsers, int countUserDuplicate, String url, long seconds, LocalDateTime date) {
-        Input input = new Input();
-        List<Log> logs = new ArrayList<>();
+    public Log generateLog(int countDays, int countUsers, int countUserDuplicate, String url, long seconds, LocalDateTime date) {
+        Log log = new Log();
+        List<LogEntry> journalEntries = new ArrayList<>();
         generateUsers(countUsers);
 
         for (int i = 1; i <= countDays; i++) {
@@ -100,19 +100,32 @@ public class UserDataGenerator {
             Long timestamp = Timestamp.valueOf(date.plusDays(i - 1)).getTime() / 1000L;
             for (User user : users) {
                 for (int j = 0; j < countUserDuplicate; j++) {
-                    Log log = new Log(timestamp, user.getName(), url, seconds);
-                    logs.add(log);
+                    LogEntry logEntry = new LogEntry(timestamp, user.getName(), url, seconds);
+                    journalEntries.add(logEntry);
                 }
             }
         }
-        input.setLogs(logs);
+        log.setLogEntries(journalEntries);
 
-        return input;
+        return log;
+    }
+
+    public List<Log> generateLogs(int countLogs, int countDays, int countUsers, String url, LocalDateTime date) {
+        return generateLogs(countLogs, countDays, countUsers, 0, url, 0L, date);
+    }
+
+    public List<Log> generateLogs(int countLogs, int countDays, int countUsers, int countUserDuplicate, String url, long seconds, LocalDateTime date) {
+        List<Log> logs = new ArrayList<>();
+        for (int i = 0; i < countLogs; i++) {
+            Log log = generateLog(countDays, countUsers, countUserDuplicate, url, seconds, date);
+            logs.add(log);
+        }
+        return logs;
     }
 
     @SneakyThrows
-    public Input getInputFromFile(String filePath) {
-        return xmlMapper.readValue(new File(filePath), Input.class);
+    public Log getLogFromFile(String filePath) {
+        return xmlMapper.readValue(new File(filePath), Log.class);
     }
 
     public Map<String, User> getUsersNameMap() {

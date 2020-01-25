@@ -1,7 +1,7 @@
 package com.example.demo.dto.xmlInteraction;
 
 import com.example.demo.UserDataGenerator;
-import com.example.demo.dto.xmlStructure.input.Input;
+import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
 import org.junit.Test;
@@ -21,11 +21,11 @@ public class LogParserTest {
         int countUsers = 5;
         LocalDateTime date = LocalDateTime.now();
         UserDataGenerator userDataGenerator = new UserDataGenerator();
-        Input input = userDataGenerator.generateInput(countDays, countUsers, "site", date);
+        List<Log> logs = userDataGenerator.generateLogs(1, countDays, countUsers, "site", date);
         Map<String, User> usersNameMap = userDataGenerator.getUsersNameMap();
 
         LogParser logParser = new LogParser(usersNameMap);
-        List<UserVisit> visits = logParser.parse(input);
+        List<UserVisit> visits = logParser.parse(logs);
 
         assertEquals(countDays * countUsers, visits.size());
 

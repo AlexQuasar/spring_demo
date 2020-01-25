@@ -2,11 +2,10 @@ package com.example.demo.services;
 
 import com.example.demo.UserDataGenerator;
 import com.example.demo.dto.userInteraction.UserAveragePresence;
-import com.example.demo.dto.xmlStructure.input.Input;
+import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.UserVisit;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.UserVisitRepository;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -69,16 +68,16 @@ public class UserParserServiceTest {
     }
 
     @Test
-    public void addLogsTest() {
+    public void addLogTest() {
         int countDays = 3;
         int countUsers = 5;
         LocalDateTime date = LocalDateTime.now();
         UserDataGenerator userDataGenerator = new UserDataGenerator();
-        Input input = userDataGenerator.generateInput(countDays, countUsers, "site", date);
+        List<Log> logs = userDataGenerator.generateLogs(1, countDays, countUsers, "site", date);
 
-        userParserService.addLogs(input);
+        userParserService.addLog(logs);
 
         verify(userRepository).findAll();
-        verify(userVisitRepository).saveAll(any());
+        verify(userVisitRepository).saveAll(anyList());
     }
 }

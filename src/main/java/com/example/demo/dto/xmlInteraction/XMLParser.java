@@ -1,6 +1,7 @@
 package com.example.demo.dto.xmlInteraction;
 
 import com.example.demo.dto.xmlStructure.input.Log;
+import com.example.demo.dto.xmlStructure.input.LogEntry;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
 
@@ -22,14 +23,18 @@ public class XMLParser implements Runnable {
 
     @Override
     public void run() {
-        long startTime = log.getTimestamp();
-        long timeSpent = log.getSeconds();
+        log.getLogEntries().forEach(this::parseLogEntry);
+    }
+
+    private void parseLogEntry(LogEntry logEntry) {
+        long startTime = logEntry.getTimestamp();
+        long timeSpent = logEntry.getSeconds();
 
         LocalDateTime startDateTime = LocalDateTime.ofEpochSecond(startTime, 0, ZoneOffset.UTC);
         LocalDateTime endOfDay = LocalDateTime.of(startDateTime.toLocalDate(), LocalTime.MAX);
         long secondsToEndDay = Duration.between(startDateTime, endOfDay).getSeconds();
 
-        String userName = log.getUserId();
+        String userName = logEntry.getUserId();
         User user = usersNameMap.get(userName);
         if (user == null) {
             user = new User();
@@ -41,9 +46,9 @@ public class XMLParser implements Runnable {
         while (timeSpentOnDay > 0) {
             timeSpentOnDay = timeSpent - secondsToEndDay;
             if (timeSpentOnDay <= 0) {
-                addUserVisit(startDateTime, user, log.getUrl(), timeSpent);
+                addUserVisit(startDateTime, user, logEntry.getUrl(), timeSpent);
             } else {
-                addUserVisit(startDateTime, user, log.getUrl(), secondsToEndDay);
+                addUserVisit(startDateTime, user, logEntry.getUrl(), secondsToEndDay);
                 timeSpent -= secondsToEndDay;
 
                 startDateTime = startDateTime.plusDays(1L).withHour(0).withMinute(0).withSecond(0);

@@ -2,7 +2,7 @@ package com.example.demo.web.input;
 
 import com.example.demo.UserDataGenerator;
 import com.example.demo.dto.userInteraction.UserAveragePresence;
-import com.example.demo.dto.xmlStructure.input.Input;
+import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
 import com.example.demo.repository.UserRepository;
@@ -121,16 +121,16 @@ public class UserRestControllerTest {
 
     @Test
     @Transactional
-    public void addLogsTest() throws Exception {
-        String addLogs = userController + "/addLogs";
-        String filePath = "./src/test/java/com/example/demo/testInputXML/input.xml";
+    public void addLogTest() throws Exception {
+        String addLog = userController + "/addLog";
+        String filePath = "./src/test/java/com/example/demo/testLogXML/log.xml";
         UserDataGenerator userDataGenerator = new UserDataGenerator();
-        Input input = userDataGenerator.getInputFromFile(filePath);
-        int expectedVisitsSize = input.getLogs().size() + userVisitRepository.findAll().size();
+        Log log = userDataGenerator.getLogFromFile(filePath);
+        int expectedVisitsSize = log.getLogEntries().size() + userVisitRepository.findAll().size();
 
-        mockMvc.perform(post(addLogs)
+        mockMvc.perform(post(addLog)
                 .contentType(MediaType.APPLICATION_XML)
-                .content(mapper.writeValueAsString(input))) // TODO: 1/19/20 не могу понять в чем тут проблема, прилетает 400 ошибка
+                .content(mapper.writeValueAsString(log))) // TODO: 1/19/20 не могу понять в чем тут проблема, прилетает 400 ошибка
         .andExpect(status().isOk());
 
         assertEquals(expectedVisitsSize, userVisitRepository.findAll().size());

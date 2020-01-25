@@ -1,7 +1,7 @@
 package com.example.demo.web.input;
 
 import com.example.demo.dto.userInteraction.UserAveragePresence;
-import com.example.demo.dto.xmlStructure.input.Input;
+import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.UserVisit;
 import com.example.demo.services.UserParserService;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("/userController")
 public class UserRestController {
 
-    UserParserService userParserService;
+    private UserParserService userParserService;
 
     public UserRestController(UserParserService userParserService) {
         this.userParserService = userParserService;
@@ -35,9 +35,9 @@ public class UserRestController {
         return userParserService.getGroupedUserVisits();
     }
 
-    @PostMapping("/addLogs")
-    public String addLogs(@RequestBody Input input) {
-        userParserService.addLogs(input);
+    @PostMapping("/addLog")
+    public String addLog(@RequestBody List<Log> logs) {
+        userParserService.addLog(logs);
         return "logs added";
     }
 }
