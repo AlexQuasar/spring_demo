@@ -36,6 +36,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/registration")
+    // TODO: 1/26/20 обычно в качестве http сообщений испольхуют dto а не entity даже если они идентичны по пропертям.
     public String registration(@RequestBody Mail mail) {
         boolean registered = authenticationService.registration(mail);
         if (registered) {
