@@ -1,6 +1,6 @@
 package com.example.demo.web.input;
 
-import com.example.demo.entity.Mail;
+import com.example.demo.dto.mailInteraction.DataMail;
 import com.example.demo.services.AuthenticationService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -36,9 +36,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/registration")
-    // TODO: 1/26/20 обычно в качестве http сообщений испольхуют dto а не entity даже если они идентичны по пропертям.
-    public String registration(@RequestBody Mail mail) {
-        boolean registered = authenticationService.registration(mail);
+    public String registration(@RequestBody DataMail dataMail) {
+        boolean registered = authenticationService.registration(dataMail);
         if (registered) {
             return "you are registered!";
         } else {
@@ -48,15 +47,8 @@ public class AuthenticationController {
 
     @GetMapping("/authorization")
     public String authorization(@RequestParam String login, @RequestParam String password) {
-        //check presence in DB
-        byte[] testKeys = DatatypeConverter.parseBase64Binary("testKey");
-        Key key = new SecretKeySpec(testKeys, SignatureAlgorithm.HS512.getJcaName());
-        String token = Jwts.builder().setId(login).setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, key).compact();
-
-        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
-        Claims body = claimsJws.getBody();
-        Date expiration = body.getExpiration();
-        if (expiration.after(new Date(Instant.now().toEpochMilli()))) {
+        boolean authorized = authenticationService.authorization(login, password, expirationDate);
+        if (authorized) {
             return "Welcome";
         } else {
             return "Sorry pal. not this time";

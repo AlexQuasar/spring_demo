@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.mailInteraction.DataMail;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +14,14 @@ public class Mail {
 
     // TODO: 1/26/20 почему mail. У тебя сервис по учету времени пребывания на сайтах. У него должен быть барьер
     //  чтобы предоставлять данные избирательно. Соответственно нужен список администраторов у которых есть доступ. Список поплняемый.
+    // тут немного не понял "У него должен быть барьер чтобы предоставлять данные избирательно" - добавить поле с аналитикой?
+    // и что значит "нужен список администраторов"? тут же почта хранится
 
+
+    public Mail(DataMail dataMail) {
+        this.login = dataMail.getLogin();
+        this.password = dataMail.getPassword();
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
