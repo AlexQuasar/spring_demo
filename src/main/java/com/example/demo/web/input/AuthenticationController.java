@@ -6,7 +6,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.omg.IOP.CodecOperations;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.jta.atomikos.AtomikosDependsOnBeanFactoryPostProcessor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +22,7 @@ import java.util.Date;
 @RequestMapping("/authentication")
 public class AuthenticationController {
 
+    // TODO: 1/29/20 тогда уже проще в сервис перенести
     @Value("${authentication.delay}")
     private int delay;
 
