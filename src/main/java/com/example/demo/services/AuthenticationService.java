@@ -7,8 +7,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
@@ -18,10 +20,18 @@ import java.util.Date;
 @Service
 public class AuthenticationService {
 
+    @Value("${authentication.delay}")
+    private int delay;
+    private Date expirationDate;
     private MailRepository mailRepository;
 
     public AuthenticationService(MailRepository mailRepository) {
         this.mailRepository = mailRepository;
+    }
+
+    @PostConstruct
+    private void init() {
+        expirationDate = new Date(Instant.now().plusSeconds(delay).toEpochMilli());
     }
 
     public Boolean registration(DataMail dataMail) {
@@ -34,7 +44,7 @@ public class AuthenticationService {
         return false;
     }
 
-    public Boolean authorization(String login, String password, Date expirationDate) {
+    public Boolean authorization(String login, String password) {
         if (isMailExist(login, password)) {
             byte[] testKeys = DatatypeConverter.parseBase64Binary("testKey");
             Key key = new SecretKeySpec(testKeys, SignatureAlgorithm.HS512.getJcaName());
