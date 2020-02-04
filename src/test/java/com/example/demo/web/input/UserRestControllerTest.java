@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.JUnitRestDocumentation;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -38,6 +39,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
+// TODO: 2/4/20 это позволит использовать тестовые настройки. И ты сможешь протестировать поведение пользователя.
+//  Что он пришел получил токен и смог зайти или если пришел с просроченным то не смог и тд. https://mkyong.com/spring-boot/spring-boot-profile-based-properties-and-yaml-example/
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserRestControllerTest {

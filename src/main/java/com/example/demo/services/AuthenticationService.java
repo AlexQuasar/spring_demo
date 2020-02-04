@@ -35,6 +35,7 @@ public class AuthenticationService {
 
     @PostConstruct
     private void init() {
+        // TODO: 2/4/20 ну это пора бы заменить
         expirationDate = new Date(Instant.now().plusSeconds(delay).toEpochMilli());
     }
 
@@ -58,6 +59,7 @@ public class AuthenticationService {
             tokenMap.put(token, new SessionLife(mail, new Date(Instant.now().toEpochMilli())));
 
             // TODO: 03.02.2020 как юзать Jws я до конца не понял, сделал через мапу
+            // TODO: 2/4/20  4 строки ниже показыввают как. Мапа тебе не нужна.
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
             Claims body = claimsJws.getBody();
             Date expiration = body.getExpiration();
@@ -73,6 +75,7 @@ public class AuthenticationService {
     }
 
     public String getPassword(String token) {
+        // TODO: 2/4/20 инфа о просрочке хранится в самом токне тебе нужно просто проверить не протух ли он. Сессию заводить не стоит.
         SessionLife sessionLife = tokenMap.get(token);
         if (sessionLife == null) {
             return "You not authorized";
