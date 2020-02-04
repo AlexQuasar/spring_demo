@@ -23,4 +23,4 @@ datasource:
   driver-class-name: org.postgresql.Driver
 
 authentication:
-  delay: 15
+  delay: 60

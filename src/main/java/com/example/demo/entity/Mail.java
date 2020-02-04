@@ -2,12 +2,14 @@ package com.example.demo.entity;
 
 import com.example.demo.dto.mailInteraction.DataMail;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(schema = "public", name = "mail")
+@NoArgsConstructor
 @Getter
 @Setter
 public class Mail {

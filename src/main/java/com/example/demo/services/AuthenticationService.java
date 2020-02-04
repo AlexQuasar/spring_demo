@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.mailInteraction.DataMail;
+import com.example.demo.dto.mailInteraction.SessionLife;
 import com.example.demo.entity.Mail;
 import com.example.demo.repository.MailRepository;
 import io.jsonwebtoken.Claims;
@@ -16,6 +17,8 @@ import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class AuthenticationService {
@@ -24,6 +27,7 @@ public class AuthenticationService {
     private int delay;
     private Date expirationDate;
     private MailRepository mailRepository;
+    private Map<String, SessionLife> tokenMap = new HashMap<>();
 
     public AuthenticationService(MailRepository mailRepository) {
         this.mailRepository = mailRepository;
@@ -45,12 +49,15 @@ public class AuthenticationService {
     }
 
     public Boolean authorization(String login, String password) {
-        if (isMailExist(login, password)) {
+        Mail mail = mailRepository.findByLogin(login);
+        if (mail != null && mail.getPassword().equals(password)) {
             byte[] testKeys = DatatypeConverter.parseBase64Binary("testKey");
             Key key = new SecretKeySpec(testKeys, SignatureAlgorithm.HS512.getJcaName());
+            expirationDate = new Date(Instant.now().plusSeconds(delay).toEpochMilli());
             String token = Jwts.builder().setId(login).setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, key).compact();
-            // TODO: 28.01.2020 как зафиксировать этот токен, чтобы можно было к нему обратиться, и сверить, уже в другом методе, когда пользак будет делать запрос?
+            tokenMap.put(token, new SessionLife(mail, new Date(Instant.now().toEpochMilli())));
 
+            // TODO: 03.02.2020 как юзать Jws я до конца не понял, сделал через мапу
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
             Claims body = claimsJws.getBody();
             Date expiration = body.getExpiration();
@@ -63,5 +70,25 @@ public class AuthenticationService {
     private Boolean isMailExist(String login, String password) {
         Mail mail = mailRepository.findByLogin(login);
         return mail != null && mail.getPassword().equals(password);
+    }
+
+    public String getPassword(String token) {
+        SessionLife sessionLife = tokenMap.get(token);
+        if (sessionLife == null) {
+            return "You not authorized";
+        }
+
+        byte[] testKeys = DatatypeConverter.parseBase64Binary("testKey");
+        Key key = new SecretKeySpec(testKeys, SignatureAlgorithm.HS512.getJcaName());
+
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
+        Claims body = claimsJws.getBody();
+        Date expiration = body.getExpiration();
+
+        if (expiration.after(new Date(Instant.now().toEpochMilli()))) {
+            return sessionLife.getMail().getPassword();
+        } else {
+            return "Please, authorized again";
+        }
     }
 }

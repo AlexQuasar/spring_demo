@@ -33,4 +33,9 @@ public class AuthenticationController {
             return "Sorry pal. not this time";
         }
     }
+
+    @GetMapping("/getPassword")
+    public String getPassword(String token) {
+        return authenticationService.getPassword(token);
+    }
 }
