@@ -11,7 +11,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
@@ -31,12 +30,6 @@ public class AuthenticationService {
 
     public AuthenticationService(MailRepository mailRepository) {
         this.mailRepository = mailRepository;
-    }
-
-    @PostConstruct
-    private void init() {
-        // TODO: 2/4/20 ну это пора бы заменить
-        expirationDate = new Date(Instant.now().plusSeconds(delay).toEpochMilli());
     }
 
     public Boolean registration(DataMail dataMail) {
@@ -76,6 +69,7 @@ public class AuthenticationService {
 
     public String getPassword(String token) {
         // TODO: 2/4/20 инфа о просрочке хранится в самом токне тебе нужно просто проверить не протух ли он. Сессию заводить не стоит.
+        // а как найти Mail по токену?
         SessionLife sessionLife = tokenMap.get(token);
         if (sessionLife == null) {
             return "You not authorized";
