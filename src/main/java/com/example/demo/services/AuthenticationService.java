@@ -33,9 +33,9 @@ public class AuthenticationService {
     }
 
     public Boolean registration(DataMail dataMail) {
-        Mail mail = mailRepository.findByLogin(dataMail.getLogin());
+        Mail mail = this.mailRepository.findByLogin(dataMail.getLogin());
         if (mail == null) {
-            mailRepository.save(new Mail(dataMail));
+            this.mailRepository.save(new Mail(dataMail));
             return true;
         }
 
@@ -43,18 +43,19 @@ public class AuthenticationService {
     }
 
     public Boolean authorization(String login, String password) {
-        Mail mail = mailRepository.findByLogin(login);
+        Mail mail = this.mailRepository.findByLogin(login);
         if (mail != null && mail.getPassword().equals(password)) {
             byte[] testKeys = DatatypeConverter.parseBase64Binary("testKey");
             Key key = new SecretKeySpec(testKeys, SignatureAlgorithm.HS512.getJcaName());
-            expirationDate = new Date(Instant.now().plusSeconds(delay).toEpochMilli());
-            String token = Jwts.builder().setId(login).setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, key).compact();
-            tokenMap.put(token, new SessionLife(mail, new Date(Instant.now().toEpochMilli())));
+            this.expirationDate = new Date(Instant.now().plusSeconds(this.delay).toEpochMilli());
+            String token = Jwts.builder().setId(login).setExpiration(this.expirationDate).signWith(SignatureAlgorithm.HS512, key).compact();
+            this.tokenMap.put(token, new SessionLife(mail, new Date(Instant.now().toEpochMilli())));
 
             // TODO: 03.02.2020 как юзать Jws я до конца не понял, сделал через мапу
             // TODO: 2/4/20  4 строки ниже показыввают как. Мапа тебе не нужна.
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
             Claims body = claimsJws.getBody();
+
             Date expiration = body.getExpiration();
             return expiration.after(new Date(Instant.now().toEpochMilli()));
         }
@@ -63,14 +64,15 @@ public class AuthenticationService {
     }
 
     private Boolean isMailExist(String login, String password) {
-        Mail mail = mailRepository.findByLogin(login);
+        Mail mail = this.mailRepository.findByLogin(login);
         return mail != null && mail.getPassword().equals(password);
     }
 
     public String getPassword(String token) {
         // TODO: 2/4/20 инфа о просрочке хранится в самом токне тебе нужно просто проверить не протух ли он. Сессию заводить не стоит.
         // а как найти Mail по токену?
-        SessionLife sessionLife = tokenMap.get(token);
+        // TODO: 2/7/20 токен никто не хранит на бэке. В токене может хранится юзернейм в качестве issuer id subject на выбор. В примере использован id.
+        SessionLife sessionLife = this.tokenMap.get(token);
         if (sessionLife == null) {
             return "You not authorized";
         }

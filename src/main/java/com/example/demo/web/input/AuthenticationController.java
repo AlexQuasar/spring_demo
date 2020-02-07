@@ -16,7 +16,7 @@ public class AuthenticationController {
 
     @PostMapping("/registration")
     public String registration(@RequestBody DataMail dataMail) {
-        boolean registered = authenticationService.registration(dataMail);
+        boolean registered = this.authenticationService.registration(dataMail);
         if (registered) {
             return "you are registered!";
         } else {
@@ -26,7 +26,7 @@ public class AuthenticationController {
 
     @GetMapping("/authorization")
     public String authorization(@RequestParam String login, @RequestParam String password) {
-        boolean authorized = authenticationService.authorization(login, password);
+        boolean authorized = this.authenticationService.authorization(login, password);
         if (authorized) {
             return "Welcome";
         } else {
@@ -36,6 +36,10 @@ public class AuthenticationController {
 
     @GetMapping("/getPassword")
     public String getPassword(String token) {
-        return authenticationService.getPassword(token);
+        // TODO: 2/7/20 пароль наружу не предоставляют. Зачастую даже в базе хранят зашифрованным.
+        //  Чтобы при получении пароля зашифровать его сразу и проверить совпадают ли шифры. Токен легко украсть,
+        //  вся идея как раз в том чтобы предоставить по нему временный доступ. Если бы по токену можно было получить постоянный пароль,
+        //  хакеры бы делали в первую очередь.
+        return this.authenticationService.getPassword(token);
     }
 }

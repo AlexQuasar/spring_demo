@@ -64,45 +64,47 @@ public class AuthenticationControllerTest {
     @Test
     @Transactional
     public void registration() throws Exception {
-        String registration = authentication + "/registration";
+        String registration = this.authentication + "/registration";
 
         DataMail dataMail = new DataMail("mail_test@gmail.com", "12345");
 
-        int expectedMailSize = mailRepository.findAll().size() + 1;
+        int expectedMailSize = this.mailRepository.findAll().size() + 1;
 
-        mockMvc.perform(post(registration)
+        // TODO: 2/7/20 можно в рамках одного тест кейса сделать несколько запросов. На регистрацию и после авторизацию.
+        //  Валидные и не валидные кейсы в том числе с просрочкой.
+        this.mockMvc.perform(post(registration)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(dataMail)))
+                .content(this.mapper.writeValueAsString(dataMail)))
         .andExpect(status().isOk());
 
-        assertEquals(expectedMailSize, mailRepository.findAll().size());
+        assertEquals(expectedMailSize, this.mailRepository.findAll().size());
     }
 
     @Test
     @Transactional
     public void authorization() throws Exception {
-        String authorization = authentication + "/authorization";
+        String authorization = this.authentication + "/authorization";
 
         DataMail dataMail = new DataMail("mail_test@gmail.com", "12345");
-        assertTrue(authenticationService.registration(dataMail));
+        assertTrue(this.authenticationService.registration(dataMail));
 
         authorization += "?login=" + dataMail.getLogin() + "&password=" + dataMail.getPassword();
 
-        mockMvc.perform(get(authorization))
+        this.mockMvc.perform(get(authorization))
         .andExpect(status().isOk());
 
-        assertNotNull(mailRepository.findByLogin(dataMail.getLogin()));
+        assertNotNull(this.mailRepository.findByLogin(dataMail.getLogin()));
     }
 
     @Test
     @Transactional
     public void getPassword() throws Exception {
-        String getPassword = authentication + "/getPassword";
+        String getPassword = this.authentication + "/getPassword";
 
         DataMail dataMail = new DataMail("mail_test@gmail.com", "12345");
-        assertTrue(authenticationService.registration(dataMail));
-        assertTrue(authenticationService.authorization(dataMail.getLogin(), dataMail.getPassword()));
+        assertTrue(this.authenticationService.registration(dataMail));
+        assertTrue(this.authenticationService.authorization(dataMail.getLogin(), dataMail.getPassword()));
 
         // TODO: 2/6/20 как тут можно сгенерить токен, чтобы по нему нашлась почта, либо как его достать?
     }
