@@ -1,32 +1,22 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.mailInteraction.DataMail;
-import com.example.demo.dto.mailInteraction.SessionLife;
+import com.example.demo.dto.tokenInteraction.TokenGenerator;
 import com.example.demo.entity.Mail;
 import com.example.demo.repository.MailRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class AuthenticationService {
 
-    @Value("${authentication.delay}")
-    private int delay;
-    private Date expirationDate;
     private MailRepository mailRepository;
-    private Map<String, SessionLife> tokenMap = new HashMap<>();
+    private TokenGenerator tokenGenerator = new TokenGenerator();
 
     public AuthenticationService(MailRepository mailRepository) {
         this.mailRepository = mailRepository;
@@ -43,19 +33,13 @@ public class AuthenticationService {
     }
 
     public Boolean authorization(String login, String password) {
-        Mail mail = this.mailRepository.findByLogin(login);
-        if (mail != null && mail.getPassword().equals(password)) {
-            byte[] testKeys = DatatypeConverter.parseBase64Binary("testKey");
-            Key key = new SecretKeySpec(testKeys, SignatureAlgorithm.HS512.getJcaName());
-            this.expirationDate = new Date(Instant.now().plusSeconds(this.delay).toEpochMilli());
-            String token = Jwts.builder().setId(login).setExpiration(this.expirationDate).signWith(SignatureAlgorithm.HS512, key).compact();
-            this.tokenMap.put(token, new SessionLife(mail, new Date(Instant.now().toEpochMilli())));
+        if (isMailExist(login, password)) {
+            String token = tokenGenerator.generateToken(login);
 
-            // TODO: 03.02.2020 как юзать Jws я до конца не понял, сделал через мапу
-            // TODO: 2/4/20  4 строки ниже показыввают как. Мапа тебе не нужна.
-            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
+            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(tokenGenerator.getSecurityKey()).parseClaimsJws(token);
             Claims body = claimsJws.getBody();
 
+            // TODO: 2/9/20 перенес в отдельный класс генерацию токена и теперь ключ всегда протухший (пока не разобрался в чем проблема)
             Date expiration = body.getExpiration();
             return expiration.after(new Date(Instant.now().toEpochMilli()));
         }
@@ -69,23 +53,17 @@ public class AuthenticationService {
     }
 
     public String getPassword(String token) {
-        // TODO: 2/4/20 инфа о просрочке хранится в самом токне тебе нужно просто проверить не протух ли он. Сессию заводить не стоит.
-        // а как найти Mail по токену?
-        // TODO: 2/7/20 токен никто не хранит на бэке. В токене может хранится юзернейм в качестве issuer id subject на выбор. В примере использован id.
-        SessionLife sessionLife = this.tokenMap.get(token);
-        if (sessionLife == null) {
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(tokenGenerator.getSecurityKey()).parseClaimsJws(token);
+        Claims body = claimsJws.getBody();
+
+        Mail mail = mailRepository.findByLogin(body.getId());
+        if (mail == null) {
             return "You not authorized";
         }
 
-        byte[] testKeys = DatatypeConverter.parseBase64Binary("testKey");
-        Key key = new SecretKeySpec(testKeys, SignatureAlgorithm.HS512.getJcaName());
-
-        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
-        Claims body = claimsJws.getBody();
         Date expiration = body.getExpiration();
-
         if (expiration.after(new Date(Instant.now().toEpochMilli()))) {
-            return sessionLife.getMail().getPassword();
+            return mail.getPassword();
         } else {
             return "Please, authorized again";
         }

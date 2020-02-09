@@ -2,7 +2,9 @@ package com.example.demo.web.input;
 
 import com.example.demo.dto.mailInteraction.DataMail;
 import com.example.demo.services.AuthenticationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/authentication")
@@ -30,7 +32,7 @@ public class AuthenticationController {
         if (authorized) {
             return "Welcome";
         } else {
-            return "Sorry pal. not this time";
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sorry pal. not this time");
         }
     }
 
