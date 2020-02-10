@@ -34,12 +34,14 @@ public class AuthenticationService {
 
     public Boolean authorization(String login, String password) {
         if (isMailExist(login, password)) {
-            String token = tokenGenerator.generateToken(login);
+            String token = this.tokenGenerator.generateToken(login);
 
-            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(tokenGenerator.getSecurityKey()).parseClaimsJws(token);
+            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(this.tokenGenerator.getSecurityKey()).parseClaimsJws(token);
             Claims body = claimsJws.getBody();
 
             // TODO: 2/9/20 перенес в отдельный класс генерацию токена и теперь ключ всегда протухший (пока не разобрался в чем проблема)
+            // TODO: 2/10/20 ну это банальный дебаг-режим в помощь. Если в тестах проблема возникает, вспомни про ActiveProfiles зачем и как это работает.
+
             Date expiration = body.getExpiration();
             return expiration.after(new Date(Instant.now().toEpochMilli()));
         }
@@ -53,10 +55,10 @@ public class AuthenticationService {
     }
 
     public String getPassword(String token) {
-        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(tokenGenerator.getSecurityKey()).parseClaimsJws(token);
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(this.tokenGenerator.getSecurityKey()).parseClaimsJws(token);
         Claims body = claimsJws.getBody();
 
-        Mail mail = mailRepository.findByLogin(body.getId());
+        Mail mail = this.mailRepository.findByLogin(body.getId());
         if (mail == null) {
             return "You not authorized";
         }

@@ -12,6 +12,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
+
+    // TODO: 2/10/20  методы получились одинаковые и самое главное статус  один и тот же. Я бы сделал с этим что-то
+    //  и добавил бы ResponseStatusException.
     @ExceptionHandler(value = {Throwable.class})
     protected ResponseEntity<Object> handleConflict(Throwable ex, WebRequest request) {
 //        HttpClientErrorException.Unauthorized unauthorized = new HttpClientErrorException.Unauthorized();
