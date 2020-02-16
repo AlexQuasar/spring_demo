@@ -1,10 +1,13 @@
 package com.example.demo.web.input;
 
 import com.example.demo.dto.mailInteraction.DataMail;
+import com.example.demo.entity.UserVisit;
 import com.example.demo.services.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/authentication")
@@ -36,12 +39,8 @@ public class AuthenticationController {
         }
     }
 
-    @GetMapping("/getPassword")
-    public String getPassword(String token) {
-        // TODO: 2/7/20 пароль наружу не предоставляют. Зачастую даже в базе хранят зашифрованным.
-        //  Чтобы при получении пароля зашифровать его сразу и проверить совпадают ли шифры. Токен легко украсть,
-        //  вся идея как раз в том чтобы предоставить по нему временный доступ. Если бы по токену можно было получить постоянный пароль,
-        //  хакеры бы делали в первую очередь.
-        return this.authenticationService.getPassword(token);
+    @GetMapping("/getTodayVisits/{token}")
+    public List<UserVisit> getTodayVisits(@PathVariable String token) {
+        return this.authenticationService.getTodayVisits(token);
     }
 }

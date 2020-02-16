@@ -3,30 +3,47 @@ package com.example.demo.services;
 import com.example.demo.dto.mailInteraction.DataMail;
 import com.example.demo.dto.tokenInteraction.TokenGenerator;
 import com.example.demo.entity.Mail;
+import com.example.demo.entity.User;
+import com.example.demo.entity.UserVisit;
+import com.example.demo.exception.ServiceException;
 import com.example.demo.repository.MailRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.UserVisitRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class AuthenticationService {
 
     private MailRepository mailRepository;
-    private TokenGenerator tokenGenerator = new TokenGenerator();
+    private UserRepository userRepository;
+    private UserVisitRepository userVisitRepository;
+    private TokenGenerator tokenGenerator;
 
-    public AuthenticationService(MailRepository mailRepository) {
+    public AuthenticationService(MailRepository mailRepository, UserRepository userRepository,
+            UserVisitRepository userVisitRepository, TokenGenerator tokenGenerator) {
         this.mailRepository = mailRepository;
+        this.userRepository = userRepository;
+        this.userVisitRepository = userVisitRepository;
+        this.tokenGenerator = tokenGenerator;
     }
 
     public Boolean registration(DataMail dataMail) {
         Mail mail = this.mailRepository.findByLogin(dataMail.getLogin());
         if (mail == null) {
-            this.mailRepository.save(new Mail(dataMail));
-            return true;
+            User user = this.userRepository.findByName(dataMail.getUserName());
+            if (user != null) {
+                this.mailRepository.save(new Mail(dataMail, user));
+                return true;
+            }
         }
 
         return false;
@@ -38,9 +55,6 @@ public class AuthenticationService {
 
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(this.tokenGenerator.getSecurityKey()).parseClaimsJws(token);
             Claims body = claimsJws.getBody();
-
-            // TODO: 2/9/20 перенес в отдельный класс генерацию токена и теперь ключ всегда протухший (пока не разобрался в чем проблема)
-            // TODO: 2/10/20 ну это банальный дебаг-режим в помощь. Если в тестах проблема возникает, вспомни про ActiveProfiles зачем и как это работает.
 
             Date expiration = body.getExpiration();
             return expiration.after(new Date(Instant.now().toEpochMilli()));
@@ -54,20 +68,21 @@ public class AuthenticationService {
         return mail != null && mail.getPassword().equals(password);
     }
 
-    public String getPassword(String token) {
+    public List<UserVisit> getTodayVisits(String token) throws ServiceException {
         Jws<Claims> claimsJws = Jwts.parser().setSigningKey(this.tokenGenerator.getSecurityKey()).parseClaimsJws(token);
         Claims body = claimsJws.getBody();
 
         Mail mail = this.mailRepository.findByLogin(body.getId());
         if (mail == null) {
-            return "You not authorized";
+            throw new ServiceException("You not registered", HttpStatus.FORBIDDEN);
         }
 
         Date expiration = body.getExpiration();
         if (expiration.after(new Date(Instant.now().toEpochMilli()))) {
-            return mail.getPassword();
+            User user = userRepository.findById(mail.getUser().getId());
+            return userVisitRepository.findAllByUserAndDay(user, LocalDate.now());
         } else {
-            return "Please, authorized again";
+            throw new ServiceException("Please, authorized again", HttpStatus.UNAUTHORIZED);
         }
     }
 }

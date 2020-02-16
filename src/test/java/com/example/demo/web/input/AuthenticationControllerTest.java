@@ -1,9 +1,15 @@
 package com.example.demo.web.input;
 
 import com.example.demo.dto.mailInteraction.DataMail;
+import com.example.demo.dto.tokenInteraction.TokenGenerator;
+import com.example.demo.entity.Mail;
+import com.example.demo.entity.UserVisit;
 import com.example.demo.repository.MailRepository;
-import com.example.demo.services.AuthenticationService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,11 +21,15 @@ import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
@@ -45,13 +55,15 @@ public class AuthenticationControllerTest {
     MailRepository mailRepository;
 
     @Autowired
-    AuthenticationService authenticationService;
+    ObjectMapper mapper;
 
     @Autowired
-    ObjectMapper mapper;
+    TokenGenerator tokenGenerator;
 
     Logger log = Logger.getLogger(AuthenticationControllerTest.class.getName());
     String authentication = "/authentication";
+
+    final String testMail = "mail_1@google.com";
 
     @Before
     public void setUp() throws Exception {
@@ -66,7 +78,7 @@ public class AuthenticationControllerTest {
     public void registration() throws Exception {
         String registration = this.authentication + "/registration";
 
-        DataMail dataMail = new DataMail("mail_test@gmail.com", "12345");
+        DataMail dataMail = new DataMail("mail_test@gmail.com", "12345", "user_test");
 
         int expectedMailSize = this.mailRepository.findAll().size() + 1;
 
@@ -86,26 +98,44 @@ public class AuthenticationControllerTest {
     public void authorization() throws Exception {
         String authorization = this.authentication + "/authorization";
 
-        DataMail dataMail = new DataMail("mail_test@gmail.com", "12345");
-        assertTrue(this.authenticationService.registration(dataMail));
+        Mail mail = this.mailRepository.findByLogin(testMail);
+        assertNotNull(mail);
 
-        authorization += "?login=" + dataMail.getLogin() + "&password=" + dataMail.getPassword();
-
-        this.mockMvc.perform(get(authorization))
+        this.mockMvc.perform(get(authorization)
+                .param("login", mail.getLogin())
+                .param("password", mail.getPassword()))
         .andExpect(status().isOk());
 
-        assertNotNull(this.mailRepository.findByLogin(dataMail.getLogin()));
+        String token = tokenGenerator.generateToken(mail.getLogin()); // TODO: 2/15/20 тут генерю новый токен, а надо получить уже существующий. Как это сделать?
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(tokenGenerator.getSecurityKey()).parseClaimsJws(token);
+        Claims body = claimsJws.getBody();
+
+        Date expiration = body.getExpiration();
+        assertTrue(expiration.after(new Date(Instant.now().toEpochMilli())));
     }
 
     @Test
     @Transactional
-    public void getPassword() throws Exception {
-        String getPassword = this.authentication + "/getPassword";
+    public void getTodayVisits() throws Exception {
+        String getTodayVisits = this.authentication + "/getTodayVisits";
 
-        DataMail dataMail = new DataMail("mail_test@gmail.com", "12345");
-        assertTrue(this.authenticationService.registration(dataMail));
-        assertTrue(this.authenticationService.authorization(dataMail.getLogin(), dataMail.getPassword()));
+        String token = tokenGenerator.generateToken(testMail);
 
-        // TODO: 2/6/20 как тут можно сгенерить токен, чтобы по нему нашлась почта, либо как его достать?
+        getTodayVisits += "/token=" + token;
+
+        // TODO: 2/16/20 тут столкнулся с проблемой, что у меня в тестовом классе (тут) создается объект класса TokenGenerator
+        //  и в сервисе AuthenticationService тоже создается свой объект класса TokenGenerator.
+        //  Получается тут сыпется ошибка из-за того что у них поле Key securityKey разные, а точнее в сервисе оно даже не определено (null)
+        //  как решить эту проблему или я не туда рою? нужна помощь
+        //  хотя в спринге по умолчанию синглтон. Тогда не знаю в чем причина)
+        MvcResult result = this.mockMvc.perform(get(getTodayVisits)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        List<UserVisit> visits = mapper.readValue(content, new TypeReference<List<UserVisit>>() {});
+
+        assertEquals(0, visits.size());
     }
 }

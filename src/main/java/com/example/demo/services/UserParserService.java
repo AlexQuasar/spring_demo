@@ -8,8 +8,10 @@ import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
 import com.example.demo.repository.UserVisitRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.web.output.JSONPlaceHolderClient;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +21,18 @@ public class UserParserService {
 
     private UserVisitRepository userVisitRepository;
     private UserRepository userRepository;
+    private JSONPlaceHolderClient jsonPlaceHolderClient;
 
-    public UserParserService(UserVisitRepository userVisitRepository, UserRepository userRepository) {
+    @PostConstruct
+    public void init(){
+        String dummy = jsonPlaceHolderClient.getDummy();
+        System.out.println(dummy);
+    }
+
+    public UserParserService(UserVisitRepository userVisitRepository, UserRepository userRepository, JSONPlaceHolderClient jsonPlaceHolderClient) {
         this.userVisitRepository = userVisitRepository;
         this.userRepository = userRepository;
+        this.jsonPlaceHolderClient = jsonPlaceHolderClient;
     }
 
     public void addVisit(UserVisit userVisit) {
