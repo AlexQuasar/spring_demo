@@ -14,6 +14,7 @@ import java.util.Date;
 
 @Configuration
 @Getter
+// TODO: 2/19/20 я бы сделал его как утильный класс, параметер delay пробрасывал бы из сервиса, скажем в конструкторе. Это точно не конфигурационный класс аннотация тут ни к чему.
 public class TokenGenerator {
 
     @Value("${authentication.delay}")

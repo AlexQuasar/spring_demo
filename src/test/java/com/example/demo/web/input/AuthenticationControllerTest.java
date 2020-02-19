@@ -128,6 +128,8 @@ public class AuthenticationControllerTest {
         //  Получается тут сыпется ошибка из-за того что у них поле Key securityKey разные, а точнее в сервисе оно даже не определено (null)
         //  как решить эту проблему или я не туда рою? нужна помощь
         //  хотя в спринге по умолчанию синглтон. Тогда не знаю в чем причина)
+
+        // TODO: 2/19/20 просто создай вечный токен и помести в константу строковую и пользуйся им. Тебе не нужно генерировать его каджый раз. Просто поставь expiration через 100 лет.
         MvcResult result = this.mockMvc.perform(get(getTodayVisits)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
