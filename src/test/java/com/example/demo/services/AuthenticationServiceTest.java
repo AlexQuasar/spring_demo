@@ -1,7 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.mailInteraction.DataMail;
-import com.example.demo.dto.tokenInteraction.TokenGenerator;
+import com.example.demo.TokenGenerator;
 import com.example.demo.entity.Mail;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +40,8 @@ public class AuthenticationServiceTest {
     DataMail dataMail;
     User user;
 
+    final long hundredYearsInSeconds = 3155673600L;
+
     @Test
     public void registration() {
         initialSettings();
@@ -62,6 +65,9 @@ public class AuthenticationServiceTest {
         //  как обойти это при юнит-тестах?
         // TODO: 2/19/20 не факт что это оптимальный подход в данной ситуации, но инструмент рекомендую освоить Reflection в тестах пригодится,
         //  пользуясь им можно сетать приватные поля снаружи. https://javarush.ru/groups/posts/513-reflection-api-refleksija-temnaja-storona-java
+        int delay = 5;
+        assertTrue(setDelayPrivateField(delay));
+
         assertTrue(authenticationService.authorization(dataMail.getLogin(), dataMail.getPassword()));
         verify(mailRepository).findByLogin(anyString());
     }
@@ -79,18 +85,28 @@ public class AuthenticationServiceTest {
         when(userRepository.findById(anyInt())).thenReturn(user);
         when(userVisitRepository.findAllByUserAndDay(any(User.class), any(LocalDate.class))).thenReturn(visits);
 
-        TokenGenerator tokenGenerator = new TokenGenerator();
+        TokenGenerator tokenGenerator = new TokenGenerator(hundredYearsInSeconds);
         String token = tokenGenerator.generateToken(dataMail.getLogin());
 
-        // TODO: 2/16/20 та же хрень, что и в тесте "authorization"
         List<UserVisit> userVisits = authenticationService.getTodayVisits(token);
 
-        assertEquals(visits, userVisits);
+        assertEquals(visits.size(), userVisits.size());
     }
 
     private void initialSettings() {
         dataMail = new DataMail("test_mail@google.com", "12345", "test_user");
         user = new User();
         user.setName(dataMail.getUserName());
+    }
+
+    private Boolean setDelayPrivateField(int delay) {
+        try {
+            Field field = authenticationService.getClass().getDeclaredField("delay");
+            field.setAccessible(true);
+            field.set(authenticationService, delay);
+        } catch (NoSuchFieldException | IllegalAccessException ex) {
+            return false;
+        }
+        return true;
     }
 }
