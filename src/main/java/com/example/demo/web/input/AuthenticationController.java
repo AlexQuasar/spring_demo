@@ -31,11 +31,11 @@ public class AuthenticationController {
 
     @GetMapping("/authorization")
     public String authorization(@RequestParam String login, @RequestParam String password) {
-        boolean authorized = this.authenticationService.authorization(login, password);
-        if (authorized) {
-            return "Welcome";
-        } else {
+        String token = this.authenticationService.authorization(login, password);
+        if (token.equals("")) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sorry pal. not this time");
+        } else {
+            return token;
         }
     }
 

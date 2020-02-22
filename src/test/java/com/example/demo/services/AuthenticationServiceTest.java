@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.mailInteraction.DataMail;
-import com.example.demo.TokenGenerator;
 import com.example.demo.entity.Mail;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
@@ -40,7 +39,7 @@ public class AuthenticationServiceTest {
     DataMail dataMail;
     User user;
 
-    final long hundredYearsInSeconds = 3155673600L;
+    final String tokenHundredYears = "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJtYWlsXzFAZ29vZ2xlLmNvbSIsImV4cCI6NDczNzg5MTQwNH0.3eIKjn783JMyoAROR5yjXFLJuWM3fRfVrjVTIr73REalQ1ZSfbzdjyPBN5dnBxE1qeT-vc0FJEWEap4Fvx0VMA";
 
     @Test
     public void registration() {
@@ -61,14 +60,11 @@ public class AuthenticationServiceTest {
 
         when(mailRepository.findByLogin(dataMail.getLogin())).thenReturn(mail);
 
-        // TODO: 2/16/20 тут ошибка из-за того что в классе TokenGenerator одно поле заполняется когда поднимается контекст - "${authentication.delay}"
-        //  как обойти это при юнит-тестах?
-        // TODO: 2/19/20 не факт что это оптимальный подход в данной ситуации, но инструмент рекомендую освоить Reflection в тестах пригодится,
-        //  пользуясь им можно сетать приватные поля снаружи. https://javarush.ru/groups/posts/513-reflection-api-refleksija-temnaja-storona-java
         int delay = 5;
         assertTrue(setDelayPrivateField(delay));
 
-        assertTrue(authenticationService.authorization(dataMail.getLogin(), dataMail.getPassword()));
+        String token = authenticationService.authorization(dataMail.getLogin(), dataMail.getPassword());
+        assertNotEquals("", token);
         verify(mailRepository).findByLogin(anyString());
     }
 
@@ -85,10 +81,7 @@ public class AuthenticationServiceTest {
         when(userRepository.findById(anyInt())).thenReturn(user);
         when(userVisitRepository.findAllByUserAndDay(any(User.class), any(LocalDate.class))).thenReturn(visits);
 
-        TokenGenerator tokenGenerator = new TokenGenerator(hundredYearsInSeconds);
-        String token = tokenGenerator.generateToken(dataMail.getLogin());
-
-        List<UserVisit> userVisits = authenticationService.getTodayVisits(token);
+        List<UserVisit> userVisits = authenticationService.getTodayVisits(tokenHundredYears);
 
         assertEquals(visits.size(), userVisits.size());
     }

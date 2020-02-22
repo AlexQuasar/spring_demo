@@ -62,18 +62,13 @@ public class AuthenticationService {
         return false;
     }
 
-    public Boolean authorization(String login, String password) {
+    public String authorization(String login, String password) {
         if (isMailExist(login, password)) {
-            String token = generateToken(login);
-
-            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(this.securityKey).parseClaimsJws(token);
-            Claims body = claimsJws.getBody();
-
-            Date expiration = body.getExpiration();
-            return expiration.after(new Date(Instant.now().toEpochMilli()));
+            Date date = new Date(Instant.now().plusSeconds(delay).toEpochMilli());
+            return Jwts.builder().setId(login).setExpiration(date).signWith(SignatureAlgorithm.HS512, securityKey).compact();
         }
 
-        return false;
+        return "";
     }
 
     public List<UserVisit> getTodayVisits(String token) throws ServiceException {
@@ -97,10 +92,5 @@ public class AuthenticationService {
     private Boolean isMailExist(String login, String password) {
         Mail mail = this.mailRepository.findByLogin(login);
         return mail != null && mail.getPassword().equals(password);
-    }
-
-    private String generateToken(String id) {
-        Date date = new Date(Instant.now().plusSeconds(delay).toEpochMilli());
-        return Jwts.builder().setId(id).setExpiration(date).signWith(SignatureAlgorithm.HS512, securityKey).compact();
     }
 }
