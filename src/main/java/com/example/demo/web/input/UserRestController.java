@@ -3,14 +3,10 @@ package com.example.demo.web.input;
 import com.example.demo.dto.userInteraction.UserAveragePresence;
 import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.UserVisit;
-import com.example.demo.exception.ServiceException;
 import com.example.demo.services.UserParserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
 import java.util.List;
 
 @RestController
@@ -39,24 +35,6 @@ public class UserRestController {
     @GetMapping("/getGroupedUserVisits")
     public List<UserAveragePresence> getGroupedUserVisits() {
         return userParserService.getGroupedUserVisits();
-    }
-
-    @GetMapping("/crash")
-    public String crash() {
-
-        if(true) {
-            throw new RuntimeException("Not ok");
-        }
-        return "Ok";
-    }
-
-    @GetMapping("/crashcustom/{a}")
-    public String crashCustom(@PathVariable @Valid @Max(10) int a) {
-
-        if(true) {
-            throw new ServiceException("Custom Not ok", HttpStatus.FORBIDDEN);
-        }
-        return "Ok";
     }
 
     @PostMapping("/addLog")

@@ -5,7 +5,6 @@ import com.example.demo.dto.userInteraction.UserAveragePresence;
 import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.UserVisitRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -53,9 +53,6 @@ public class UserRestControllerTest {
 
     @Rule
     public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("target/generated-snippets");
-
-    @Autowired
-    UserRepository userRepository;
 
     @Autowired
     UserVisitRepository userVisitRepository;
@@ -130,11 +127,11 @@ public class UserRestControllerTest {
         String filePath = "./src/test/java/com/example/demo/testLogXML/log.xml";
         UserDataGenerator userDataGenerator = new UserDataGenerator();
         Log log = userDataGenerator.getLogFromFile(filePath);
-        int expectedVisitsSize = log.getLogEntries().size() + userVisitRepository.findAll().size();
+        int expectedVisitsSize = userVisitRepository.findAll().size() + 30;
 
         mockMvc.perform(post(addLog)
-                .contentType(MediaType.APPLICATION_XML)
-                .content(mapper.writeValueAsString(log))) // TODO: 1/19/20 не могу понять в чем тут проблема, прилетает 400 ошибка
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(Arrays.asList(log))))
         .andExpect(status().isOk());
 
         assertEquals(expectedVisitsSize, userVisitRepository.findAll().size());

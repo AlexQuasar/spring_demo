@@ -7,11 +7,9 @@ import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserVisit;
 import com.example.demo.repository.UserVisitRepository;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.web.output.JSONPlaceHolderClient;
+import com.example.demo.web.output.UserClient;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,19 +18,11 @@ import java.util.Map;
 public class UserParserService {
 
     private UserVisitRepository userVisitRepository;
-    private UserRepository userRepository;
-    private JSONPlaceHolderClient jsonPlaceHolderClient;
+    private UserClient userClient;
 
-    @PostConstruct
-    public void init(){
-        String dummy = jsonPlaceHolderClient.getDummy();
-        System.out.println(dummy);
-    }
-
-    public UserParserService(UserVisitRepository userVisitRepository, UserRepository userRepository, JSONPlaceHolderClient jsonPlaceHolderClient) {
+    public UserParserService(UserVisitRepository userVisitRepository, UserClient userClient) {
         this.userVisitRepository = userVisitRepository;
-        this.userRepository = userRepository;
-        this.jsonPlaceHolderClient = jsonPlaceHolderClient;
+        this.userClient = userClient;
     }
 
     public void addVisit(UserVisit userVisit) {
@@ -44,12 +34,12 @@ public class UserParserService {
     }
 
     public List<UserAveragePresence> getGroupedUserVisits() {
-        UserDailyAveragePresenceReport averagePresenceReport = new UserDailyAveragePresenceReport(getUsersNameMap(userRepository.findAll()), userVisitRepository.findAll());
+        UserDailyAveragePresenceReport averagePresenceReport = new UserDailyAveragePresenceReport(getUsersNameMap(userClient.findAll()), userVisitRepository.findAll());
         return averagePresenceReport.getGroupUsers();
     }
 
     public void addLog(List<Log> logs) {
-        LogParser logParser = new LogParser(getUsersNameMap(userRepository.findAll()));
+        LogParser logParser = new LogParser(getUsersNameMap(userClient.findAll()));
         List<UserVisit> visits = logParser.parse(logs);
         userVisitRepository.saveAll(visits);
     }

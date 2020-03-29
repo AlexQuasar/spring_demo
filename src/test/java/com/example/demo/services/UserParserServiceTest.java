@@ -4,8 +4,8 @@ import com.example.demo.UserDataGenerator;
 import com.example.demo.dto.userInteraction.UserAveragePresence;
 import com.example.demo.dto.xmlStructure.input.Log;
 import com.example.demo.entity.UserVisit;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.UserVisitRepository;
+import com.example.demo.web.output.UserClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,7 +25,7 @@ public class UserParserServiceTest {
     UserVisitRepository userVisitRepository;
 
     @Mock
-    UserRepository userRepository;
+    UserClient userClient;
 
     @InjectMocks
     UserParserService userParserService;
@@ -58,7 +58,7 @@ public class UserParserServiceTest {
         int timeSpent = 10;
         UserDataGenerator userDataGenerator = new UserDataGenerator();
         List<UserVisit> visits = userDataGenerator.generateUserVisits(countVisits, countUsers, timeSpent, "site");
-        when(userRepository.findAll()).thenReturn(userDataGenerator.users);
+        when(userClient.findAll()).thenReturn(userDataGenerator.users);
         when(userVisitRepository.findAll()).thenReturn(visits);
 
         List<UserAveragePresence> groupedUserVisits = userParserService.getGroupedUserVisits();
@@ -77,7 +77,7 @@ public class UserParserServiceTest {
 
         userParserService.addLog(logs);
 
-        verify(userRepository).findAll();
+        verify(userClient).findAll();
         verify(userVisitRepository).saveAll(anyList());
     }
 }

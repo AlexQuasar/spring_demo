@@ -84,6 +84,6 @@ public class XMLParserTest {
 
         this.log.info("One thread: " + betweenOneThread.getSeconds()
                 + "; Ten thread: " + betweenTenThread.getSeconds());
-        assertTrue(betweenOneThread.getSeconds() / betweenTenThread.getSeconds() > 4);
+        assertTrue(betweenOneThread.getSeconds() / (betweenTenThread.getSeconds() == 0 ? 1 : betweenTenThread.getSeconds()) > 4);
     }
 }

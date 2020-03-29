@@ -16,6 +16,9 @@ spring:
     baselineOnMigrate: true
     locations: filesystem:db/migration
 
+server:
+  port: 8091
+
 datasource:
   url: jdbc:postgresql://localhost:5432/postgres
   username: postgres
